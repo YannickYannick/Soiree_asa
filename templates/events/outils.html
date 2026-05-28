@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block title %}Outils — Afro Night Manager{% endblock %}
+
+{% block content %}
+<div>
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">Outils & Ressources</h1>
+        <p class="text-gray-400">Liens utiles pour l'organisation de l'événement</p>
+    </div>
+    
+    <!-- Grille des outils -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Bizouk -->
+        <a href="https://www.bizouk.com/" target="_blank" rel="noopener noreferrer" 
+           class="bg-gray-900 rounded-xl border border-gray-800 p-6 hover:border-purple-600 transition group">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                    <span class="text-2xl">🎫</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition">Bizouk</h3>
+                    <p class="text-sm text-gray-400 mt-1">Billetterie événementielle française. Création et gestion de billets, contrôle d'accès.</p>
+                    <div class="flex items-center space-x-1 mt-3 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span>bizouk.com</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <!-- DICE -->
+        <a href="https://dice.fm/?lng=en" target="_blank" rel="noopener noreferrer" 
+           class="bg-gray-900 rounded-xl border border-gray-800 p-6 hover:border-purple-600 transition group">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                    <span class="text-2xl font-bold text-white">D</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition">DICE</h3>
+                    <p class="text-sm text-gray-400 mt-1">Plateforme de billetterie internationale. Prix tout compris, pas de frais cachés. Idéal pour la musique live.</p>
+                    <div class="flex items-center space-x-1 mt-3 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span>dice.fm</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <!-- Shotgun -->
+        <a href="https://shotgun.live/en" target="_blank" rel="noopener noreferrer" 
+           class="bg-gray-900 rounded-xl border border-gray-800 p-6 hover:border-purple-600 transition group">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                    <span class="text-2xl">🎯</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition">Shotgun</h3>
+                    <p class="text-sm text-gray-400 mt-1">Billetterie spécialisée musique électronique et clubbing. QR codes, stats en temps réel.</p>
+                    <div class="flex items-center space-x-1 mt-3 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span>shotgun.live</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <!-- Tricount -->
+        <a href="https://tricount.com/" target="_blank" rel="noopener noreferrer" 
+           class="bg-gray-900 rounded-xl border border-gray-800 p-6 hover:border-purple-600 transition group">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                    <span class="text-2xl">💰</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition">Tricount</h3>
+                    <p class="text-sm text-gray-400 mt-1">Partage des dépenses entre organisateurs. Idéal pour tracker qui a payé quoi et équilibrer les comptes.</p>
+                    <div class="flex items-center space-x-1 mt-3 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span>tricount.com</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <!-- Site AŠA -->
+        <a href="https://boat-bash-booking.lovable.app/" target="_blank" rel="noopener noreferrer" 
+           class="bg-gray-900 rounded-xl border border-gray-800 p-6 hover:border-purple-600 transition group">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition">
+                    <span class="text-2xl">⛵</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white group-hover:text-purple-400 transition">AŠA — Site officiel</h3>
+                    <p class="text-sm text-gray-400 mt-1">Landing page de l'événement Odelyia × AŠA. Réservations tables, espace promoteurs.</p>
+                    <div class="flex items-center space-x-1 mt-3 text-xs text-gray-500">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                        </svg>
+                        <span>boat-bash-booking.lovable.app</span>
+                    </div>
+                </div>
+            </div>
+        </a>
+        
+        <!-- INWEE Contact -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-start space-x-4">
+                <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <span class="text-2xl">📧</span>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-white">INWEE — Contact venue</h3>
+                    <p class="text-sm text-gray-400 mt-1">Matthieu Bouaziz — Groupe Atmosphère. Pour accord publications, questions contrat.</p>
+                    <a href="mailto:matthieu@inwee.fr" class="inline-flex items-center space-x-1 mt-3 text-xs text-purple-400 hover:text-purple-300 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                        </svg>
+                        <span>matthieu@inwee.fr</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Autres ressources -->
+    <div class="mt-8 bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-lg font-semibold mb-4">Autres ressources utiles</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="https://www.canva.com/" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition">
+                <span class="text-xl">🎨</span>
+                <div>
+                    <div class="text-sm font-medium text-white">Canva</div>
+                    <div class="text-xs text-gray-500">Création visuels</div>
+                </div>
+            </a>
+            <a href="https://www.instagram.com/" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition">
+                <span class="text-xl">📸</span>
+                <div>
+                    <div class="text-sm font-medium text-white">Instagram</div>
+                    <div class="text-xs text-gray-500">Communication</div>
+                </div>
+            </a>
+            <a href="https://www.sacem.fr/" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition">
+                <span class="text-xl">🎵</span>
+                <div>
+                    <div class="text-sm font-medium text-white">SACEM</div>
+                    <div class="text-xs text-gray-500">Droits musicaux</div>
+                </div>
+            </a>
+            <a href="https://www.google.com/maps/place/La+P%C3%A9niche/@48.8505,2.3522" target="_blank" class="flex items-center space-x-3 p-3 bg-gray-800/50 rounded-lg hover:bg-gray-800 transition">
+                <span class="text-xl">📍</span>
+                <div>
+                    <div class="text-sm font-medium text-white">Google Maps</div>
+                    <div class="text-xs text-gray-500">La Péniche</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

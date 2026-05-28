@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Afro Night Manager{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#fdf4ff',
+                            100: '#fae8ff',
+                            200: '#f5d0fe',
+                            300: '#f0abfc',
+                            400: '#e879f9',
+                            500: '#d946ef',
+                            600: '#c026d3',
+                            700: '#a21caf',
+                            800: '#86198f',
+                            900: '#701a75',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        [x-cloak] { display: none !important; }
+        
+        .gradient-border {
+            background: linear-gradient(135deg, #d946ef 0%, #8b5cf6 100%);
+        }
+        
+        .glass {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(12px);
+        }
+        
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+        
+        input[type="range"]::-webkit-slider-track {
+            height: 8px;
+            background: #374151;
+            border-radius: 4px;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #d946ef;
+            border-radius: 50%;
+            cursor: pointer;
+            margin-top: -6px;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-950 text-gray-100 min-h-screen">
+    <!-- Navigation -->
+    <nav class="glass border-b border-gray-800 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'events:dashboard' %}" class="flex items-center space-x-2">
+                        <div class="w-8 h-8 rounded-lg gradient-border flex items-center justify-center">
+                            <span class="text-white font-bold text-sm">AN</span>
+                        </div>
+                        <span class="font-bold text-lg">Afro Night</span>
+                    </a>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-1">
+                    {% if event %}
+                    <a href="{% url 'events:dashboard' %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'dashboard' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Dashboard
+                    </a>
+                    <a href="{% url 'events:simulation' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'simulation' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Simulation
+                    </a>
+                    <a href="{% url 'events:pricing' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'pricing' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Tarification
+                    </a>
+                    <a href="{% url 'events:tables' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'tables' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Tables VIP
+                    </a>
+                    <a href="{% url 'events:instagram' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'instagram' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Instagram
+                    </a>
+                    <a href="{% url 'events:budget' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'budget' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Budget
+                    </a>
+                    <a href="{% url 'events:sales' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'sales' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Ventes
+                    </a>
+                    <a href="{% url 'events:outils' event.pk %}" 
+                       class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'outils' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
+                        Outils
+                    </a>
+                    {% endif %}
+                </div>
+                
+                <div class="flex items-center space-x-3">
+                    {% if event %}
+                    <span class="text-sm text-gray-400">
+                        {{ event.date|date:"d M Y" }}
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Alertes -->
+    {% if alerts %}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-4 space-y-2">
+        {% for alert in alerts %}
+        <div class="p-4 rounded-lg border {% if alert.type == 'danger' %}bg-red-900/30 border-red-700 text-red-300{% elif alert.type == 'warning' %}bg-yellow-900/30 border-yellow-700 text-yellow-300{% else %}bg-blue-900/30 border-blue-700 text-blue-300{% endif %}">
+            <div class="flex items-center space-x-2">
+                {% if alert.type == 'danger' %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                {% elif alert.type == 'warning' %}
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {% endif %}
+                <span class="text-sm font-medium">{{ alert.message }}</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <!-- Contenu principal -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}{% endblock %}
+    </main>
+    
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-gray-500 text-sm">
+            Afro Night Event Manager — Association ODELYIA
+        </div>
+    </footer>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

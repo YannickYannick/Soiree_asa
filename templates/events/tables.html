@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+
+{% block title %}Tables VIP — Afro Night Manager{% endblock %}
+
+{% block content %}
+<div x-data="tablesData()">
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">Gestion des tables VIP</h1>
+        <p class="text-gray-400">10 slots configurables avec commissions promoteurs</p>
+    </div>
+    
+    <!-- Récapitulatif global -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="text-sm text-gray-400 mb-1">Total brut</div>
+            <div class="text-2xl font-bold" x-text="formatCurrency(totals.gross)">{{ total_gross|floatformat:0 }} €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="text-sm text-gray-400 mb-1">Commissions promo</div>
+            <div class="text-2xl font-bold text-red-400" x-text="'−' + formatCurrency(totals.commission)">−{{ total_commission|floatformat:0 }} €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="text-sm text-gray-400 mb-1">Total net</div>
+            <div class="text-2xl font-bold text-green-400" x-text="formatCurrency(totals.net)">{{ total_net|floatformat:0 }} €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="text-sm text-gray-400 mb-1">Personnes incluses</div>
+            <div class="text-2xl font-bold text-purple-400" x-text="totals.pax">{{ total_pax }}</div>
+        </div>
+    </div>
+    
+    <!-- Grille des tables -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+        {% for table in tables %}
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 relative"
+             :class="tables[{{ table.table_number }}]?.formula ? 'border-purple-600' : ''">
+            
+            <!-- Numéro de table -->
+            <div class="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-sm font-bold">
+                {{ table.table_number }}
+            </div>
+            
+            <!-- Statut -->
+            <div class="text-right mb-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium"
+                      :class="tables[{{ table.table_number }}]?.formula ? 'bg-green-900/50 text-green-300' : 'bg-gray-800 text-gray-400'">
+                    <span x-text="tables[{{ table.table_number }}]?.formula ? 'Réservée' : 'Disponible'">
+                        {% if table.is_booked %}Réservée{% else %}Disponible{% endif %}
+                    </span>
+                </span>
+            </div>
+            
+            <!-- Sélecteur de formule -->
+            <div class="mb-3">
+                <label class="text-xs text-gray-500 block mb-1">Formule</label>
+                <select x-model="tables[{{ table.table_number }}].formula" 
+                        @change="updateTable({{ table.table_number }})"
+                        class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500">
+                    <option value="">— Non réservée —</option>
+                    {% for value, label in formula_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Options (visible si formule sélectionnée) -->
+            <template x-if="tables[{{ table.table_number }}].formula">
+                <div class="space-y-3">
+                    <!-- Toggle ×2 -->
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs text-gray-400">Ressert ×2</label>
+                        <button type="button" 
+                                @click="tables[{{ table.table_number }}].doubleOrder = !tables[{{ table.table_number }}].doubleOrder; updateTable({{ table.table_number }})"
+                                :class="tables[{{ table.table_number }}].doubleOrder ? 'bg-purple-600' : 'bg-gray-700'"
+                                class="relative inline-flex h-5 w-9 flex-shrink-0 cursor-pointer rounded-full transition-colors">
+                            <span :class="tables[{{ table.table_number }}].doubleOrder ? 'translate-x-4' : 'translate-x-0'"
+                                  class="inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform"></span>
+                        </button>
+                    </div>
+                    
+                    <!-- Commission -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="text-xs text-gray-400">Commission promo</label>
+                            <span class="text-xs font-medium" x-text="tables[{{ table.table_number }}].promoPercent + '%'"></span>
+                        </div>
+                        <input type="range" min="0" max="30" step="5"
+                               x-model="tables[{{ table.table_number }}].promoPercent"
+                               @change="updateTable({{ table.table_number }})"
+                               class="w-full">
+                    </div>
+                    
+                    <!-- Promoteur -->
+                    <div>
+                        <label class="text-xs text-gray-400 block mb-1">Promoteur</label>
+                        <input type="text" 
+                               x-model="tables[{{ table.table_number }}].promoterName"
+                               @blur="updateTable({{ table.table_number }})"
+                               placeholder="Nom du promoteur"
+                               class="w-full bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    
+                    <!-- Résumé -->
+                    <div class="pt-3 border-t border-gray-700 space-y-1 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Brut</span>
+                            <span x-text="formatCurrency(tables[{{ table.table_number }}].grossRevenue)"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Commission</span>
+                            <span class="text-red-400" x-text="'−' + formatCurrency(tables[{{ table.table_number }}].commission)"></span>
+                        </div>
+                        <div class="flex justify-between font-medium">
+                            <span>Net</span>
+                            <span class="text-green-400" x-text="formatCurrency(tables[{{ table.table_number }}].netRevenue)"></span>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Personnes incluses</span>
+                            <span x-text="tables[{{ table.table_number }}].guests"></span>
+                        </div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Tarifs de référence -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-lg font-semibold mb-4">Tarifs tables disponibles</h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {% for value, label in formula_choices %}
+            <div class="bg-gray-800/50 rounded-lg p-4 text-center">
+                <div class="text-2xl font-bold text-white mb-1">{{ value }}€</div>
+                <div class="text-sm text-gray-400">
+                    {% if value < 500 %}4 personnes{% else %}5 personnes{% endif %}
+                </div>
+                <div class="text-xs text-gray-500 mt-1">
+                    Commission : {% if value >= 500 %}15%{% else %}10%{% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <p class="text-sm text-gray-500 mt-4">
+            <strong>Règle :</strong> &lt; 500 € = 4 pax inclus · ≥ 500 € = 5 pax inclus
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function tablesData() {
+    return {
+        tables: {
+            {% for table in tables %}
+            {{ table.table_number }}: {
+                id: {{ table.id }},
+                formula: {% if table.formula %}{{ table.formula }}{% else %}null{% endif %},
+                doubleOrder: {{ table.double_order|yesno:"true,false" }},
+                promoPercent: {{ table.promo_percent }},
+                promoterName: "{{ table.promoter_name|default:'' }}",
+                grossRevenue: {{ table.gross_revenue }},
+                commission: {{ table.commission_amount }},
+                netRevenue: {{ table.net_revenue }},
+                guests: {{ table.included_guests }},
+            },
+            {% endfor %}
+        },
+        
+        totals: {
+            gross: {{ total_gross }},
+            commission: {{ total_commission }},
+            net: {{ total_net }},
+            pax: {{ total_pax }},
+        },
+        
+        formatCurrency(value) {
+            return new Intl.NumberFormat('fr-FR', { 
+                style: 'currency', 
+                currency: 'EUR',
+                maximumFractionDigits: 0 
+            }).format(value || 0);
+        },
+        
+        async updateTable(tableNumber) {
+            const table = this.tables[tableNumber];
+            
+            // Calcul local immédiat
+            if (table.formula) {
+                const formula = parseInt(table.formula);
+                table.grossRevenue = formula * (table.doubleOrder ? 2 : 1);
+                table.commission = table.grossRevenue * (table.promoPercent / 100);
+                table.netRevenue = table.grossRevenue - table.commission;
+                table.guests = formula < 500 ? 4 : 5;
+            } else {
+                table.grossRevenue = 0;
+                table.commission = 0;
+                table.netRevenue = 0;
+                table.guests = 0;
+            }
+            
+            // Recalcul des totaux
+            this.recalculateTotals();
+            
+            // Envoi au serveur
+            try {
+                const response = await fetch('{% url "events:api_update_table" event.pk %}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}',
+                    },
+                    body: JSON.stringify({
+                        table_id: table.id,
+                        formula: table.formula || null,
+                        double_order: table.doubleOrder,
+                        promo_percent: table.promoPercent,
+                        promoter_name: table.promoterName,
+                    }),
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    this.totals = data.totals;
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+            }
+        },
+        
+        recalculateTotals() {
+            let gross = 0, commission = 0, net = 0, pax = 0;
+            
+            for (const key in this.tables) {
+                const table = this.tables[key];
+                if (table.formula) {
+                    gross += table.grossRevenue;
+                    commission += table.commission;
+                    net += table.netRevenue;
+                    pax += table.guests;
+                }
+            }
+            
+            this.totals = { gross, commission, net, pax };
+        }
+    }
+}
+</script>
+{% endblock %}

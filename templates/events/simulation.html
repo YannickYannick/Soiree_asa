@@ -1,0 +1,1635 @@
+{% extends 'base.html' %}
+
+{% block title %}Simulation financière — Afro Night Manager{% endblock %}
+
+{% block content %}
+<div>
+    <!-- Dates clés -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-lg bg-purple-600/20 flex items-center justify-center">
+                    <span class="text-purple-400">📅</span>
+                </div>
+                <div>
+                    <div class="text-xs text-gray-400 uppercase tracking-wide">7 Séances</div>
+                    <div class="text-sm font-medium">
+                        <span class="text-white">10, 17, 31 mai</span>
+                        <span class="text-gray-500 mx-1">·</span>
+                        <span class="text-white">7, 14, 21, 28 juin</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="text-xs text-gray-500">Soirée finale</div>
+                <div class="text-lg font-bold text-purple-400">28 juin 2025</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Frise temporelle des phases (interactive) -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6" id="friseContainer">
+        <div class="flex items-center">
+            <div class="flex-1 flex">
+                <div class="text-xs text-gray-500 mr-2 self-center">Auj.</div>
+                <div class="flex-1 h-10 flex rounded-l-lg overflow-hidden" id="frisePhases">
+                    <div class="phase-segment flex-[7] bg-green-700 flex items-center justify-center text-xs font-medium text-white border-r border-green-900 transition-all" data-phase="seb" data-start="0" data-end="6">
+                        <div class="text-center"><div>Super Early Bird</div><div class="text-[10px] opacity-75">10€</div></div>
+                    </div>
+                    <div class="phase-segment flex-[7] bg-amber-700 flex items-center justify-center text-xs font-medium text-white border-r border-amber-900 transition-all" data-phase="eb" data-start="7" data-end="13">
+                        <div class="text-center"><div>Early Bird</div><div class="text-[10px] opacity-75">12€</div></div>
+                    </div>
+                    <div class="phase-segment flex-[6] bg-yellow-600 flex items-center justify-center text-xs font-medium text-white border-r border-yellow-700 transition-all" data-phase="pv" data-start="14" data-end="19">
+                        <div class="text-center"><div>Pré-vente</div><div class="text-[10px] opacity-75">15€</div></div>
+                    </div>
+                    <div class="phase-segment flex-[4] bg-orange-700 flex items-center justify-center text-xs font-medium text-white transition-all" data-phase="lm" data-start="20" data-end="23">
+                        <div class="text-center"><div>Last Min</div><div class="text-[10px] opacity-75">18€</div></div>
+                    </div>
+                </div>
+            </div>
+            <div class="w-px h-10 bg-gray-600 mx-1"></div>
+            <div class="flex-1 flex">
+                <div class="flex-1 h-10 flex rounded-r-lg overflow-hidden" id="friseSoiree">
+                    <div class="phase-segment flex-1 bg-teal-700 flex items-center justify-center text-xs font-medium text-white border-r border-teal-800 transition-all" data-phase="h1" data-start="24" data-end="24">
+                        <div class="text-center"><div>23h→00h</div><div class="text-[10px] opacity-75">18€</div></div>
+                    </div>
+                    <div class="phase-segment flex-1 bg-teal-600 flex items-center justify-center text-xs font-medium text-white border-r border-teal-700 transition-all" data-phase="h2" data-start="25" data-end="25">
+                        <div class="text-center"><div>00h→01h</div><div class="text-[10px] opacity-75">20€</div></div>
+                    </div>
+                    <div class="phase-segment flex-1 bg-cyan-700 flex items-center justify-center text-xs font-medium text-white border-r border-cyan-800 transition-all" data-phase="h3" data-start="26" data-end="27">
+                        <div class="text-center"><div>01h→03h</div><div class="text-[10px] opacity-75">22€</div></div>
+                    </div>
+                    <div class="phase-segment flex-1 bg-blue-800 flex items-center justify-center text-xs font-medium text-white transition-all" data-phase="h4" data-start="28" data-end="29">
+                        <div class="text-center"><div>03h→05h</div><div class="text-[10px] opacity-75">bar</div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="flex justify-between mt-1 text-[10px] text-gray-500">
+            <span>← 24 jours compressés</span>
+            <span>6 heures dilatées →</span>
+        </div>
+    </div>
+    
+    <!-- Graphique principal (Trésorerie) -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">Trésorerie & Affluence</h3>
+            <div class="flex flex-wrap items-center gap-2" id="mainToggles">
+                <button onclick="toggleMainCurve(0, this)" data-active="true" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-rose-600 text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-rose-400"></span><span>Solde net</span>
+                </button>
+                <button onclick="toggleMainCurve(1, this)" data-active="true" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-green-600 text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-green-400"></span><span>Recettes</span>
+                </button>
+                <button onclick="toggleMainCurve(2, this)" data-active="true" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-red-600 text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span><span>Dépenses</span>
+                </button>
+                <button onclick="toggleMainCurve(3, this)" data-active="true" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-pink-600 text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-pink-400"></span><span>Filles</span>
+                </button>
+                <button onclick="toggleMainCurve(4, this)" data-active="true" class="toggle-btn px-3 py-1.5 rounded-lg text-xs font-medium bg-cyan-600 text-white flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-cyan-400"></span><span>Garçons</span>
+                </button>
+            </div>
+        </div>
+        <div class="h-80 relative">
+            <canvas id="mainChart"></canvas>
+        </div>
+        <div class="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs">
+            <div class="flex items-center space-x-1.5"><span class="w-4 h-4 rounded flex items-center justify-center bg-red-500 text-[10px]">⚓</span><span class="text-gray-400">Acompte (3 000 €)</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-4 h-4 rounded flex items-center justify-center bg-yellow-500 text-[10px]">🍾</span><span class="text-gray-400">Alcool+Com (3 000 €)</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-4 h-4 rounded flex items-center justify-center bg-pink-500 text-[10px]">💳</span><span class="text-gray-400">Solde+Déco (2 750 €)</span></div>
+            <div class="flex items-center space-x-1.5"><span class="w-4 h-4 rounded flex items-center justify-center bg-purple-500 text-[10px]">⭐</span><span class="text-gray-400">VIP (300 €)</span></div>
+        </div>
+    </div>
+    
+    <!-- Graphiques synchronisés : Ventes + Tables -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <!-- Ventes cumulées -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold">Ventes cumulées</h3>
+                <div class="flex items-center space-x-1">
+                    <button onclick="toggleSalesCurve(0, this)" data-active="true" class="toggle-btn px-2 py-1 rounded text-[10px] font-medium bg-white text-gray-900">Total</button>
+                    <button onclick="toggleSalesCurve(1, this)" data-active="true" class="toggle-btn px-2 py-1 rounded text-[10px] font-medium bg-pink-600 text-white">♀</button>
+                    <button onclick="toggleSalesCurve(2, this)" data-active="true" class="toggle-btn px-2 py-1 rounded text-[10px] font-medium bg-cyan-600 text-white">♂</button>
+                </div>
+            </div>
+            <div class="h-48">
+                <canvas id="salesCumulativeChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Ventes journalières -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold">Ventes / jour</h3>
+                <div class="flex items-center space-x-1">
+                    <button onclick="toggleDailyCurve(0, this)" data-active="true" class="toggle-btn px-2 py-1 rounded text-[10px] font-medium bg-pink-600 text-white">♀</button>
+                    <button onclick="toggleDailyCurve(1, this)" data-active="true" class="toggle-btn px-2 py-1 rounded text-[10px] font-medium bg-cyan-600 text-white">♂</button>
+                </div>
+            </div>
+            <div class="h-48">
+                <canvas id="salesDailyChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Tables VIP -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold">Tables VIP</h3>
+                <span class="text-xs text-purple-400">10 tables</span>
+            </div>
+            <div class="h-48">
+                <canvas id="tablesChart"></canvas>
+            </div>
+            <div class="mt-2 text-center text-xs text-gray-500">
+                <span class="text-purple-400 font-bold">8 tables</span> réservées · <span class="text-green-400 font-bold">5 900 €</span> net
+            </div>
+        </div>
+    </div>
+    
+    <!-- Graphiques Tarifs + Publications Instagram -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-2">
+        <!-- Graphique des tarifs -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold flex items-center space-x-2">
+                    <span class="text-yellow-400">💰</span>
+                    <span>Évolution des tarifs</span>
+                </h3>
+                <a href="{% url 'events:pricing' event.pk %}" class="text-xs text-yellow-400 hover:underline">Voir détails →</a>
+            </div>
+            <div class="h-48">
+                <canvas id="tarifsChart"></canvas>
+            </div>
+            <div class="mt-2 flex justify-center gap-4 text-[10px] text-gray-500">
+                <span class="flex items-center"><span class="w-3 h-3 rounded mr-1 bg-green-600"></span>Super EB</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded mr-1 bg-amber-600"></span>Early Bird</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded mr-1 bg-yellow-600"></span>Pré-vente</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded mr-1 bg-orange-600"></span>Last Min</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded mr-1 bg-teal-600"></span>Soirée</span>
+            </div>
+        </div>
+        
+        <!-- Frise Publications Instagram -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-semibold flex items-center space-x-2">
+                    <span class="text-pink-400">📸</span>
+                    <span>Publications Instagram</span>
+                </h3>
+                <a href="{% url 'events:instagram' event.pk %}" class="text-xs text-purple-400 hover:underline">Voir tout →</a>
+            </div>
+            <div class="h-48">
+                <canvas id="instagramChart"></canvas>
+            </div>
+            <div class="mt-2 flex flex-wrap items-center justify-center gap-3 text-[10px] text-gray-500">
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-blue-600 mr-1"></span>Post</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-pink-600 mr-1"></span>Reel</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-purple-600 mr-1"></span>Story</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-orange-500 mr-1"></span>QCM 🎵</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-amber-600 mr-1"></span>Plan 🛋️</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau détails Tarifs + Publications (connecté aux graphiques) -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+        <!-- Détail Tarifs -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4" id="detailTarifsContainer">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-yellow-400">🎫</span>
+                    <span class="text-sm font-semibold" id="detailTarifsJour">Survolez le graphique</span>
+                </div>
+                <span class="text-xs px-2 py-1 rounded" id="detailTarifsPhase">—</span>
+            </div>
+            <div id="detailTarifsContent" class="text-sm text-gray-400">
+                <div class="text-center py-4 text-gray-500">Passez la souris sur le graphique des tarifs pour voir les détails</div>
+            </div>
+        </div>
+        
+        <!-- Détail Publications -->
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4" id="detailInstagramContainer">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                    <span class="text-pink-400">📝</span>
+                    <span class="text-sm font-semibold" id="detailInstagramJour">Survolez le graphique</span>
+                </div>
+                <span class="text-xs px-2 py-1 rounded" id="detailInstagramType">—</span>
+            </div>
+            <div id="detailInstagramContent" class="text-sm text-gray-400">
+                <div class="text-center py-4 text-gray-500">Passez la souris sur le graphique Instagram pour voir les détails</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Détail du calcul des bénéfices (synchronisé) -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold flex items-center space-x-2">
+                <span>🧮</span>
+                <span>Détail du calcul — <span id="calculJour" class="text-purple-400">Final</span></span>
+            </h3>
+            <div class="flex items-center space-x-3">
+                <span id="calculPhase" class="text-xs px-2 py-1 rounded bg-green-600 text-white">Fin de soirée</span>
+                <span class="text-xs text-gray-500">Synchronisé aux graphiques</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Colonne 1: Recettes -->
+            <div class="space-y-4">
+                <h4 class="text-green-400 font-semibold border-b border-green-900 pb-2">💰 RECETTES CUMULÉES</h4>
+                
+                <!-- Billetterie -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('billetterie')">
+                        <span class="text-sm font-medium flex items-center">
+                            🎫 Billetterie
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleBilletterieIcon">▼</span>
+                        </span>
+                        <span class="text-green-400 font-bold" id="calcBilletterie">2 731 €</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="calcBilletterieDetail">180 pax cumulés</div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailBilletterie">
+                        <div class="flex justify-between"><span class="text-gray-400">Super EB (50 × 10€)</span><span>500 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Early Bird (60 × 12€)</span><span>720 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Pré-vente (40 × 15€)</span><span>600 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Last Min (30 × 18€)</span><span>540 €</span></div>
+                        <div class="flex justify-between text-green-400"><span>Packs Girls x4 (−10%)</span><span>+280 €</span></div>
+                        <div class="flex justify-between text-green-400"><span>Duos Mixte</span><span>+91 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1 flex justify-between font-medium">
+                            <span>Prix moyen</span><span class="text-yellow-400">15.17 €/pers</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tables VIP -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('tables')">
+                        <span class="text-sm font-medium flex items-center">
+                            🛋️ Tables VIP
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleTablesIcon">▼</span>
+                        </span>
+                        <span class="text-green-400 font-bold" id="calcTables">5 900 €</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="calcTablesDetail">8 tables réservées</div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailTables">
+                        <div class="flex justify-between"><span class="text-gray-400">Tables Standard (4 × 600€)</span><span>2 400 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Tables Premium (4 × 1000€)</span><span>4 000 €</span></div>
+                        <div class="flex justify-between text-orange-400"><span>Commission promo (−15%)</span><span>−960 €</span></div>
+                        <div class="flex justify-between text-green-400"><span>Doubles commandes (2)</span><span>+460 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1 space-y-1">
+                            <div class="flex justify-between"><span class="text-gray-400">Brut tables</span><span>6 400 €</span></div>
+                            <div class="flex justify-between font-medium"><span>Net après promo</span><span class="text-green-400">5 900 €</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Bar -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('bar')">
+                        <span class="text-sm font-medium flex items-center">
+                            🍹 Bar
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleBarIcon">▼</span>
+                        </span>
+                        <span class="text-green-400 font-bold" id="calcBar">4 805 €</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="calcBarDetail">Soirée en cours</div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailBar">
+                        <div class="flex justify-between"><span class="text-gray-400">CA bar brut (200p × 25€)</span><span>5 000 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Marge nette (40%)</span><span>2 000 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">+ Reste CA</span><span>3 000 €</span></div>
+                        <div class="flex justify-between text-orange-400"><span>− TPE 6.5% sur 60%</span><span>−195 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1 space-y-1">
+                            <div class="flex justify-between"><span class="text-gray-400">Conso moyenne</span><span>25 €/pers</span></div>
+                            <div class="flex justify-between"><span class="text-gray-400">Part paiement TPE</span><span>60%</span></div>
+                            <div class="flex justify-between font-medium"><span>Net bar</span><span class="text-green-400">4 805 €</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Entrées sur place -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('surplace')">
+                        <span class="text-sm font-medium flex items-center">
+                            🚪 Sur place
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleSurplaceIcon">▼</span>
+                        </span>
+                        <span class="text-green-400 font-bold" id="calcSurPlace">150 €</span>
+                    </div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailSurplace">
+                        <div class="flex justify-between"><span class="text-gray-400">Estimation entrées</span><span>~10 pers</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Prix moyen soirée</span><span>15 €</span></div>
+                        <div class="text-[10px] text-gray-500 mt-1">⚠️ Conservateur - peut être plus si bouche à oreille</div>
+                    </div>
+                </div>
+                
+                <div class="bg-green-900/30 rounded-lg p-3 border border-green-800">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-green-400">TOTAL RECETTES</span>
+                        <span class="text-xl font-bold text-green-400" id="calcTotalRecettes">13 586 €</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Colonne 2: Dépenses -->
+            <div class="space-y-4">
+                <h4 class="text-red-400 font-semibold border-b border-red-900 pb-2">💸 DÉPENSES ENGAGÉES</h4>
+                
+                <!-- Lieu -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('lieu')">
+                        <span class="text-sm font-medium flex items-center">
+                            🚢 La Péniche
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleLieuIcon">▼</span>
+                        </span>
+                        <span class="text-red-400 font-bold" id="calcLieu">4 800 €</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="calcLieuDetail">Acompte + Solde payés</div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailLieu">
+                        <div class="flex justify-between"><span class="text-gray-400">Acompte (J-21)</span><span>3 000 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Solde (J-7)</span><span>1 800 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1">
+                            <div class="flex justify-between"><span class="text-gray-400">Capacité</span><span>250 pers max</span></div>
+                            <div class="flex justify-between"><span class="text-gray-400">Horaires</span><span>23h → 05h</span></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alcool -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('alcool')">
+                        <span class="text-sm font-medium flex items-center">
+                            🍾 Alcool
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleAlcoolIcon">▼</span>
+                        </span>
+                        <span class="text-red-400 font-bold" id="calcAlcool">2 000 €</span>
+                    </div>
+                    <div class="text-xs text-gray-500 mt-1" id="calcAlcoolDetail">Stock dépôt-vente INWEE</div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailAlcool">
+                        <div class="flex justify-between"><span class="text-gray-400">Stock initial</span><span>2 000 €</span></div>
+                        <div class="flex justify-between text-green-400"><span>Invendus repris</span><span>~0 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1">
+                            <div class="flex justify-between"><span class="text-gray-400">Marge bar</span><span>40%</span></div>
+                            <div class="text-[10px] text-gray-500 mt-1">💡 Dépôt-vente = pas de risque sur invendus</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Personnel -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('personnel')">
+                        <span class="text-sm font-medium flex items-center">
+                            👥 Personnel
+                            <span class="ml-2 text-gray-500 text-[10px]" id="togglePersonnelIcon">▼</span>
+                        </span>
+                        <span class="font-bold" id="calcPersonnel">1 387 €</span>
+                    </div>
+                    <div class="text-xs mt-1" id="calcPersonnelDetail"><span class="text-orange-400">⚠️ Post-event</span></div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailPersonnel">
+                        <div class="flex justify-between"><span class="text-gray-400">DJ</span><span>800 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Sécurité (2 agents)</span><span>400 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">SACEM (forfait)</span><span>187 €</span></div>
+                        <div class="border-t border-gray-600 pt-1 mt-1">
+                            <div class="text-[10px] text-orange-400">⚠️ Payé après la soirée</div>
+                            <div class="text-[10px] text-gray-500">Optionnel: Photographe +500€</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Divers -->
+                <div class="bg-gray-800/50 rounded-lg p-3">
+                    <div class="flex justify-between items-center cursor-pointer" onclick="toggleDetail('divers')">
+                        <span class="text-sm font-medium flex items-center">
+                            📦 Divers
+                            <span class="ml-2 text-gray-500 text-[10px]" id="toggleDiversIcon">▼</span>
+                        </span>
+                        <span class="text-red-400 font-bold" id="calcDivers">450 €</span>
+                    </div>
+                    <div class="hidden mt-2 pt-2 border-t border-gray-700 text-xs space-y-1" id="detailDivers">
+                        <div class="flex justify-between"><span class="text-gray-400">VIP invités (goodies)</span><span>300 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Assurance</span><span>150 €</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Glace + consommables</span><span>~0 €*</span></div>
+                        <div class="text-[10px] text-gray-500 mt-1">*Inclus dans deal bar INWEE</div>
+                    </div>
+                </div>
+                
+                <div class="bg-red-900/30 rounded-lg p-3 border border-red-800">
+                    <div class="flex justify-between items-center">
+                        <span class="font-bold text-red-400">TOTAL DÉPENSES</span>
+                        <span class="text-xl font-bold text-red-400" id="calcTotalDepenses">8 637 €</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Colonne 3: Résultat -->
+            <div class="space-y-4">
+                <h4 class="text-purple-400 font-semibold border-b border-purple-900 pb-2">📊 SOLDE À CE JOUR</h4>
+                
+                <!-- Calcul -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-green-400">+ Recettes</span>
+                            <span class="text-green-400 font-mono" id="calcRecettesLigne">13 586 €</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-red-400">− Dépenses</span>
+                            <span class="text-red-400 font-mono" id="calcDepensesLigne">8 637 €</span>
+                        </div>
+                        <div class="border-t border-gray-600 pt-2 flex justify-between">
+                            <span class="font-bold text-white">= Solde</span>
+                            <span class="font-bold font-mono text-lg" id="calcSolde">+4 949 €</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Indicateurs dynamiques -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="text-sm font-medium mb-3">Indicateurs à ce jour</div>
+                    <div class="space-y-2 text-xs">
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Marge</span>
+                            <span class="font-bold" id="calcMarge">36.4%</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Pax cumulés</span>
+                            <span class="font-bold text-blue-400" id="calcPax">200</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Tables réservées</span>
+                            <span class="font-bold text-purple-400" id="calcTablesNb">8/10</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-400">Rev/pax actuel</span>
+                            <span class="font-bold text-cyan-400" id="calcRevPax">67.93 €</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Jauge de progression -->
+                <div class="bg-gray-800/50 rounded-lg p-4">
+                    <div class="text-xs font-medium mb-2">Progression vers objectif</div>
+                    <div class="relative h-6 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="absolute inset-0 flex">
+                            <div class="bg-red-500 transition-all duration-300" id="jaugeDepenses" style="width:63.5%"></div>
+                            <div class="bg-green-500 transition-all duration-300" id="jaugeBenefice" style="width:36.5%"></div>
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-white">
+                            <span id="jaugeTexte">Dépenses 63.5% | Bénéfice 36.5%</span>
+                        </div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[10px] text-gray-500">
+                        <span>0 €</span>
+                        <span id="jaugeTotal">13 586 €</span>
+                    </div>
+                </div>
+                
+                <!-- Timeline -->
+                <div class="bg-purple-900/20 rounded-lg p-4 border border-purple-800">
+                    <div class="text-xs font-medium text-purple-400 mb-2">📍 Position timeline</div>
+                    <div class="h-2 bg-gray-700 rounded-full overflow-hidden">
+                        <div class="h-full bg-purple-500 transition-all duration-300" id="timelineProgress" style="width:100%"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-[10px] text-gray-500">
+                        <span>J-24</span>
+                        <span id="timelinePosition">Fin</span>
+                        <span>05h</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 4 cartes résultats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+            <div class="text-sm text-gray-400 mb-2">Total recettes</div>
+            <div class="text-3xl font-bold text-green-400">13 586 €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+            <div class="text-sm text-gray-400 mb-2">Total dépenses</div>
+            <div class="text-3xl font-bold text-red-400">8 637 €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+            <div class="text-sm text-gray-400 mb-2">Résultat net</div>
+            <div class="text-3xl font-bold text-green-400">+4 949 €</div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
+            <div class="text-sm text-gray-400 mb-2">Marge nette</div>
+            <div class="text-3xl font-bold text-green-400">36.4 %</div>
+        </div>
+    </div>
+    
+    <!-- Détail Recettes / Dépenses -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <div class="bg-gray-900 rounded-xl border border-l-4 border-l-green-500 border-gray-800 p-6">
+            <h3 class="text-lg font-semibold text-green-400 mb-4">Recettes</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-400">Tickets pré-vente</span><span>2 731 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Tables nettes (−promo)</span><span>5 900 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Bar net (−TPE 6,5 %)</span><span>4 805 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Entrées sur place</span><span>150 €</span></div>
+                <div class="border-t border-gray-700 pt-3 flex justify-between font-semibold"><span>Total</span><span class="text-green-400">13 586 €</span></div>
+            </div>
+        </div>
+        <div class="bg-gray-900 rounded-xl border border-l-4 border-l-red-500 border-gray-800 p-6">
+            <h3 class="text-lg font-semibold text-red-400 mb-4">Dépenses</h3>
+            <div class="space-y-3 text-sm">
+                <div class="flex justify-between"><span class="text-gray-400">La Péniche</span><span>4 800 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Alcool dépôt-vente</span><span>2 000 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">VIP invités</span><span>300 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">DJ + Sécu + SACEM</span><span class="text-orange-400">1 387 € <span class="text-[10px]">post</span></span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Assurance</span><span>150 €</span></div>
+                <div class="border-t border-gray-700 pt-3 flex justify-between font-semibold"><span>Total</span><span class="text-red-400">8 637 €</span></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Notes & Planning -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4">📋 Planning des achats</h3>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">⚓</span>
+                <div class="text-xs text-green-400 mt-1">J-21</div>
+                <div class="text-[10px] text-gray-400">Acompte 3K</div>
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">🍾</span>
+                <div class="text-xs text-blue-400 mt-1">J-14</div>
+                <div class="text-[10px] text-gray-400">Alcool 2K</div>
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">💳</span>
+                <div class="text-xs text-yellow-400 mt-1">J-7</div>
+                <div class="text-[10px] text-gray-400">Solde 1.8K</div>
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">🧊</span>
+                <div class="text-xs text-orange-400 mt-1">J-2</div>
+                <div class="text-[10px] text-gray-400">Glace 100€</div>
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">🚚</span>
+                <div class="text-xs text-orange-400 mt-1">J-1</div>
+                <div class="text-[10px] text-gray-400">Transport</div>
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3 text-center">
+                <span class="text-2xl">🎉</span>
+                <div class="text-xs text-red-400 mt-1">Jour J</div>
+                <div class="text-[10px] text-gray-400">Montage 21h30</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau Personnel -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">👥 Personnel & Staff</h3>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded" id="saveStatus">Sauvegardé</span>
+                <button onclick="addPersonnel()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-medium text-white">+ Ajouter</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Nom</th>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Rôle</th>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Tél</th>
+                        <th class="px-3 py-2 text-center text-xs text-gray-400">Salaire</th>
+                        <th class="px-3 py-2 text-center text-xs text-gray-400">Statut</th>
+                        <th class="px-3 py-2 w-10"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800" id="personnelBody"></tbody>
+                <tfoot class="bg-gray-800/50">
+                    <tr>
+                        <td colspan="3" class="px-3 py-2 font-medium">Total</td>
+                        <td class="px-3 py-2 text-center font-bold" id="totalSalaires">0 €</td>
+                        <td class="px-3 py-2 text-center text-xs text-gray-400" id="personnelCount">0</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Paramètres -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4">⚙️ Paramètres</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">Pax</span><span class="text-xs font-bold" id="paxValue">200</span></div>
+                <input type="range" min="50" max="300" value="200" class="w-full" oninput="document.getElementById('paxValue').textContent = this.value">
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">Tables</span><span class="text-xs font-bold" id="tablesValue">10</span></div>
+                <input type="range" min="0" max="10" value="10" class="w-full" oninput="document.getElementById('tablesValue').textContent = this.value">
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">Staff</span><span class="text-xs font-bold" id="staffValue">20</span></div>
+                <input type="range" min="0" max="50" value="20" class="w-full" oninput="document.getElementById('staffValue').textContent = this.value">
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">VIP</span><span class="text-xs font-bold" id="vipValue">20</span></div>
+                <input type="range" min="0" max="50" value="20" class="w-full" oninput="document.getElementById('vipValue').textContent = this.value">
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">Bar/pers</span><span class="text-xs font-bold"><span id="barValue">25</span>€</span></div>
+                <input type="range" min="10" max="50" value="25" class="w-full" oninput="document.getElementById('barValue').textContent = this.value">
+            </div>
+            <div class="bg-gray-800/50 rounded-lg p-3">
+                <div class="flex justify-between mb-2"><span class="text-xs text-gray-400">% TPE</span><span class="text-xs font-bold"><span id="tpeValue">60</span>%</span></div>
+                <input type="range" min="0" max="100" value="60" class="w-full" oninput="document.getElementById('tpeValue').textContent = this.value">
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau des hypothèses -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">📊 Hypothèses de simulation</h3>
+            <div class="flex items-center space-x-2">
+                <span class="text-xs text-green-400 bg-green-900/30 px-2 py-1 rounded" id="hypothesesStatus">Sauvegardé</span>
+                <button onclick="addHypothese()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 rounded-lg text-xs font-medium text-white">+ Ajouter</button>
+            </div>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400 w-8">#</th>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Catégorie</th>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Hypothèse</th>
+                        <th class="px-3 py-2 text-center text-xs text-gray-400 w-24">Valeur</th>
+                        <th class="px-3 py-2 text-left text-xs text-gray-400">Source / Justification</th>
+                        <th class="px-3 py-2 text-center text-xs text-gray-400 w-20">Confiance</th>
+                        <th class="px-3 py-2 w-10"></th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800" id="hypothesesBody"></tbody>
+            </table>
+        </div>
+        <div class="mt-4 p-3 bg-gray-800/30 rounded-lg">
+            <div class="text-xs text-gray-400 mb-2">Légende confiance :</div>
+            <div class="flex flex-wrap gap-3 text-xs">
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-green-500 mr-1.5"></span>Haute — Données vérifiées / historiques</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-yellow-500 mr-1.5"></span>Moyenne — Estimation raisonnable</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded-full bg-red-500 mr-1.5"></span>Basse — Hypothèse à valider</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Variables globales
+let mainChart = null, salesChart = null, dailyChart = null, tablesChart = null, tarifsChart = null, instagramChart = null;
+let syncedIndex = null;
+let isSyncing = false;
+
+// Labels communs pour synchronisation (24 jours pré-event)
+const commonLabels = ['J-24','J-23','J-22','J-21','J-20','J-19','J-18','J-17','J-16','J-15','J-14','J-13','J-12','J-11','J-10','J-9','J-8','J-7','J-6','J-5','J-4','J-3','J-2','J-1'];
+
+// Labels du graphique principal (24 jours + soirée)
+const mainLabels = [...commonLabels, 'J', '23h','00h','01h','02h','03h','05h'];
+
+// Données journalières (24 jours)
+const dailyF = [8,5,4,3,4,6,5,7,5,6,4,5,6,8,6,4,5,6,5,7,4,3,4,5];
+const dailyM = [3,2,2,1,2,3,2,4,3,4,3,3,4,5,4,3,4,5,4,5,6,5,7,8];
+const tablesSales = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,2,2,1,1,0];
+
+// Tarifs par jour (évolution en escalier)
+const tarifsData = [
+    10,10,10,10,10,10,10, // J-24 à J-18: Super Early Bird
+    12,12,12,12,12,12,12, // J-17 à J-11: Early Bird
+    15,15,15,15,15,15,    // J-10 à J-5: Pré-vente
+    18,18,18,18,          // J-4 à J-1: Last Minute
+    18,20,22,22,25,25     // Soirée: 23h, 00h, 01h, 02h, 03h, 05h
+];
+
+// Publications Instagram par jour (0 = rien, 1 = post, 2 = reel, 3 = story, 4 = QCM musique, 5 = plan table)
+const instagramData = [
+    1,0,2,4,0,3,0,1,4,3, // J-24 à J-15 (QCM musique J-21 et J-16)
+    2,0,3,3,1,5,4,2,5,3, // J-14 à J-5 (QCM J-8, Plan J-10 et J-6)
+    1,5,2,3              // J-4 à J-1 (Plan J-3)
+];
+
+// Détails des tarifs par phase
+const tarifsDetails = {
+    seb: {
+        phase: 'Super Early Bird',
+        color: 'bg-green-600',
+        tickets: [
+            {type: 'Solo', prix: '10 €', stock: '50 places', perks: 'Accès standard'},
+            {type: 'Girls x4', prix: '36 €', stock: '20 packs', perks: '9€/pers + 1 shot offert'},
+            {type: 'Duo Mixte', prix: '18 €', stock: '30 duos', perks: '9€/pers'},
+        ]
+    },
+    eb: {
+        phase: 'Early Bird',
+        color: 'bg-amber-600',
+        tickets: [
+            {type: 'Solo', prix: '12 €', stock: '60 places', perks: 'Accès standard'},
+            {type: 'Girls x4', prix: '44 €', stock: '15 packs', perks: '11€/pers + 1 shot offert'},
+            {type: 'Duo Mixte', prix: '22 €', stock: '25 duos', perks: '11€/pers'},
+        ]
+    },
+    pv: {
+        phase: 'Pré-vente',
+        color: 'bg-yellow-600',
+        tickets: [
+            {type: 'Solo', prix: '15 €', stock: '40 places', perks: 'Accès standard'},
+            {type: 'Girls x4', prix: '52 €', stock: '10 packs', perks: '13€/pers'},
+            {type: 'Duo Mixte', prix: '28 €', stock: '15 duos', perks: '14€/pers'},
+        ]
+    },
+    lm: {
+        phase: 'Last Minute',
+        color: 'bg-orange-600',
+        tickets: [
+            {type: 'Solo', prix: '18 €', stock: '30 places', perks: 'Dernier tarif pré-vente'},
+            {type: 'Girls x4', prix: '64 €', stock: '5 packs', perks: '16€/pers'},
+        ]
+    },
+    h1: {phase: 'Soirée 23h-00h', color: 'bg-teal-700', tickets: [{type: 'Entrée', prix: '18 €', stock: 'Illimité', perks: 'Sur place'}]},
+    h2: {phase: 'Soirée 00h-01h', color: 'bg-teal-600', tickets: [{type: 'Entrée', prix: '20 €', stock: 'Illimité', perks: 'Sur place'}]},
+    h3: {phase: 'Soirée 01h-03h', color: 'bg-cyan-700', tickets: [{type: 'Entrée', prix: '22 €', stock: 'Illimité', perks: 'Sur place'}]},
+    h4: {phase: 'Soirée 03h-05h', color: 'bg-blue-800', tickets: [{type: 'Bar only', prix: '—', stock: '—', perks: 'Plus d\'entrées'}]},
+};
+
+// Détails des publications Instagram
+const instagramDetails = {
+    'J-24': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Save the date 🔒', contenu: 'Annonce de la date + lieu + teaser visuel', cta: 'Lien bio → pré-inscription', inwee: true},
+    'J-22': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Teaser ambiance', contenu: 'Montage vidéo édition précédente', cta: 'Attente = hype', inwee: false},
+    'J-21': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Quelle vibe pour la soirée ? 🎶', contenu: 'Sondage story: Afrobeat vs Amapiano vs Dancehall vs Mix de tout', cta: 'Vote en story !', inwee: false},
+    'J-19': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Urgence Super EB', contenu: 'Countdown fermeture Super Early Bird', cta: 'Swipe up → billetterie', inwee: false},
+    'J-17': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Girls Deal 👯‍♀️', contenu: 'Mise en avant pack filles x4', cta: 'Tag tes copines', inwee: true},
+    'J-16': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Top 3 sons à passer 🔥', contenu: 'Sondage: Demandez les sons que vous voulez entendre ! Slider pour noter', cta: 'Réponds en DM ou commente', inwee: false},
+    'J-15': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Résultats sondage 🎶', contenu: 'Partage des résultats du vote musique', cta: 'Le DJ prend note !', inwee: false},
+    'J-14': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Lineup DJ', contenu: 'Présentation DJ + extrait set basé sur vos votes', cta: 'Save pour le jour J', inwee: true},
+    'J-13': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Duo Mixte', contenu: 'Explication offre duo', cta: 'DM pour réserver', inwee: false},
+    'J-11': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Fermeture EB ⚠️', contenu: 'Dernier jour Early Bird', cta: 'Urgence + lien', inwee: false},
+    'J-10': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Pré-vente ouverte', contenu: 'Nouveau palier tarifaire', cta: 'Lien billetterie', inwee: true},
+    'J-9': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Tables VIP disponibles 🍾', contenu: 'Visuel plan de salle + emplacements tables Premium vs Standard', cta: 'DM pour réserver ta table', inwee: true},
+    'J-8': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Old school ou nouveautés ? 🎧', contenu: 'Sondage: Classiques 2010s vs Hits 2024 vs Mix générations', cta: 'Vote maintenant !', inwee: false},
+    'J-7': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'À quoi s\'attendre', contenu: 'Teaser expérience complète + aperçu espace VIP', cta: 'J-7 let\'s go', inwee: true},
+    'J-6': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Plus que 4 tables ! 🔥', contenu: 'Update plan: tables réservées grisées + restantes en surbrillance', cta: 'Dernières dispos → DM', inwee: true},
+    'J-5': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Dernières places PV', contenu: 'Stock restant + urgence', cta: 'Swipe up', inwee: false},
+    'J-4': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'FOMO 🔥', contenu: 'Sold out preview + places restantes', cta: 'Dernière chance', inwee: true},
+    'J-3': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Dernière table Premium ! 👑', contenu: 'Visuel final plan de salle, 1 seule table dispo', cta: 'First come first served', inwee: true},
+    'J-2': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Countdown 48h', contenu: 'Hype finale + récap playlist votée', cta: '48h avant la magie', inwee: false},
+    'J-1': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Demain c\'est le soir', contenu: 'Infos pratiques + dress code + plan accès tables', cta: 'See you tomorrow', inwee: false},
+};
+
+// Mapping index -> phase pour la frise
+function getPhaseFromIndex(index) {
+    if (index < 7) return 'seb';
+    if (index < 14) return 'eb';
+    if (index < 20) return 'pv';
+    if (index < 24) return 'lm';
+    if (index === 24) return 'h1';
+    if (index === 25) return 'h2';
+    if (index <= 27) return 'h3';
+    return 'h4';
+}
+
+// Highlight phase sur la frise
+function highlightPhase(phase) {
+    document.querySelectorAll('.phase-segment').forEach(el => {
+        if (el.dataset.phase === phase) {
+            el.classList.add('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-gray-900', 'scale-105', 'z-10');
+        } else {
+            el.classList.remove('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-gray-900', 'scale-105', 'z-10');
+            el.classList.add('opacity-50');
+        }
+    });
+}
+
+function clearPhaseHighlight() {
+    document.querySelectorAll('.phase-segment').forEach(el => {
+        el.classList.remove('ring-2', 'ring-white', 'ring-offset-2', 'ring-offset-gray-900', 'scale-105', 'z-10', 'opacity-50');
+    });
+}
+
+// Toggle pour afficher/masquer les détails des sections
+function toggleDetail(section) {
+    const detail = document.getElementById('detail' + section.charAt(0).toUpperCase() + section.slice(1));
+    const icon = document.getElementById('toggle' + section.charAt(0).toUpperCase() + section.slice(1) + 'Icon');
+    
+    if (detail && icon) {
+        if (detail.classList.contains('hidden')) {
+            detail.classList.remove('hidden');
+            icon.textContent = '▲';
+        } else {
+            detail.classList.add('hidden');
+            icon.textContent = '▼';
+        }
+    }
+}
+
+// Données cumulées pour le calcul (30 points)
+const calculData = {
+    // Recettes cumulées
+    billetterie: [150,250,400,550,700,900,1100,1350,1600,1900,2200,2450,2650,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731],
+    tables: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,800,1600,2800,3600,4400,5100,5900,5900,5900,5900,5900,5900,5900],
+    bar: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,800,2000,3500,4400,4805],
+    surPlace: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,70,110,140,150],
+    // Dépenses cumulées
+    lieu: [3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800],
+    alcool: [0,0,0,0,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000],
+    personnel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1387],
+    divers: [0,0,0,0,0,0,0,0,150,150,150,150,150,150,150,150,150,300,350,400,420,440,450,450,450,450,450,450,450,450],
+    // Métriques
+    pax: [8,13,17,20,24,30,35,42,47,53,57,62,68,76,82,86,91,97,102,109,113,116,120,125,125,145,175,195,200,200],
+    tablesNb: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,4,5,6,7,8,8,8,8,8,8,8],
+    // Détail billetterie par phase (cumulé)
+    billetterieSEB: [150,250,400,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500],
+    billetterieEB: [0,0,0,50,200,400,600,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],
+    billetteriePV: [0,0,0,0,0,0,0,130,280,480,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600],
+    billetterieLM: [0,0,0,0,0,0,0,0,0,0,0,130,330,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411],
+    billetteriePacks: [0,0,0,0,0,0,0,0,100,200,280,330,370,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371],
+    // Détail tables
+    tablesStandard: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,600,1200,1800,1800,2400,2400,2400,2400,2400,2400,2400,2400,2400],
+    tablesPremium: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,600,1200,2000,2200,3000,4000,4000,4000,4000,4000,4000,4000],
+    tablesCommission: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,120,240,420,540,660,780,960,960,960,960,960,960,960],
+    tablesDoubles: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,40,200,320,400,460,460,460,460,460,460,460,460],
+};
+
+// Mise à jour du tableau de calcul synchronisé
+function updateDetailCalcul(index) {
+    const jour = mainLabels[index];
+    const phase = getPhaseFromIndex(index);
+    const phaseInfo = tarifsDetails[phase];
+    
+    // Calculs
+    const billetterie = calculData.billetterie[index];
+    const tables = calculData.tables[index];
+    const bar = calculData.bar[index];
+    const surPlace = calculData.surPlace[index];
+    const totalRecettes = billetterie + tables + bar + surPlace;
+    
+    const lieu = calculData.lieu[index];
+    const alcool = calculData.alcool[index];
+    const personnel = calculData.personnel[index];
+    const divers = calculData.divers[index];
+    const totalDepenses = lieu + alcool + personnel + divers;
+    
+    const solde = totalRecettes - totalDepenses;
+    const marge = totalRecettes > 0 ? (solde / totalRecettes * 100).toFixed(1) : 0;
+    const pax = calculData.pax[index];
+    const tablesNb = calculData.tablesNb[index];
+    const revPax = pax > 0 ? (totalRecettes / pax).toFixed(2) : 0;
+    
+    // Détails billetterie
+    const seb = calculData.billetterieSEB[index];
+    const eb = calculData.billetterieEB[index];
+    const pv = calculData.billetteriePV[index];
+    const lm = calculData.billetterieLM[index];
+    const packs = calculData.billetteriePacks[index];
+    const prixMoyen = pax > 0 ? (billetterie / pax).toFixed(2) : 0;
+    
+    // Détails tables
+    const tStd = calculData.tablesStandard[index];
+    const tPrem = calculData.tablesPremium[index];
+    const tComm = calculData.tablesCommission[index];
+    const tDoubles = calculData.tablesDoubles[index];
+    const tBrut = tStd + tPrem;
+    
+    // Mise à jour header
+    document.getElementById('calculJour').textContent = jour;
+    document.getElementById('calculPhase').textContent = phaseInfo.phase;
+    document.getElementById('calculPhase').className = `text-xs px-2 py-1 rounded ${phaseInfo.color} text-white`;
+    
+    // Recettes principales
+    document.getElementById('calcBilletterie').textContent = billetterie.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcBilletterieDetail').textContent = pax + ' pax cumulés';
+    document.getElementById('calcTables').textContent = tables.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcTablesDetail').textContent = tablesNb + ' table(s) réservée(s)';
+    document.getElementById('calcBar').textContent = bar.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcBarDetail').textContent = index >= 24 ? 'Soirée en cours' : 'Pas encore de bar';
+    document.getElementById('calcSurPlace').textContent = surPlace.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcTotalRecettes').textContent = totalRecettes.toLocaleString('fr-FR') + ' €';
+    
+    // Détail toggle Billetterie
+    document.getElementById('detailBilletterie').innerHTML = `
+        <div class="flex justify-between ${seb > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Super EB</span><span>${seb.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between ${eb > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Early Bird</span><span>${eb.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between ${pv > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Pré-vente</span><span>${pv.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between ${lm > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Last Minute</span><span>${lm.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between text-green-400 ${packs > 0 ? '' : 'opacity-40'}"><span>Packs (Girls + Duo)</span><span>+${packs.toLocaleString('fr-FR')} €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1 flex justify-between font-medium">
+            <span>Prix moyen</span><span class="text-yellow-400">${prixMoyen} €/pers</span>
+        </div>
+    `;
+    
+    // Détail toggle Tables
+    document.getElementById('detailTables').innerHTML = tablesNb > 0 ? `
+        <div class="flex justify-between ${tStd > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Tables Standard</span><span>${tStd.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between ${tPrem > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Tables Premium</span><span>${tPrem.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between text-orange-400"><span>Commission promo (−15%)</span><span>−${tComm.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between text-green-400 ${tDoubles > 0 ? '' : 'opacity-40'}"><span>Doubles commandes</span><span>+${tDoubles.toLocaleString('fr-FR')} €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1 space-y-1">
+            <div class="flex justify-between"><span class="text-gray-400">Brut tables</span><span>${tBrut.toLocaleString('fr-FR')} €</span></div>
+            <div class="flex justify-between font-medium"><span>Net après promo</span><span class="text-green-400">${tables.toLocaleString('fr-FR')} €</span></div>
+        </div>
+    ` : `<div class="text-center text-gray-500 py-2">Pas encore de réservation</div>`;
+    
+    // Détail toggle Bar
+    const barBrut = index >= 24 ? Math.round(bar / 0.935 / 0.4 * 0.4) : 0;
+    const barMarge = Math.round(barBrut * 0.4);
+    const barTPE = Math.round(barBrut * 0.6 * 0.065);
+    document.getElementById('detailBar').innerHTML = index >= 24 ? `
+        <div class="flex justify-between"><span class="text-gray-400">CA bar estimé</span><span>${Math.round(barBrut / 0.4).toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Marge nette (40%)</span><span>${barMarge.toLocaleString('fr-FR')} €</span></div>
+        <div class="flex justify-between text-orange-400"><span>− TPE 6.5% sur 60%</span><span>−${barTPE.toLocaleString('fr-FR')} €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1 space-y-1">
+            <div class="flex justify-between"><span class="text-gray-400">Affluence actuelle</span><span>${pax > 125 ? pax - 125 : 0} pers</span></div>
+            <div class="flex justify-between font-medium"><span>Net bar</span><span class="text-green-400">${bar.toLocaleString('fr-FR')} €</span></div>
+        </div>
+    ` : `<div class="text-center text-gray-500 py-2">Le bar ouvre à 23h</div>`;
+    
+    // Détail toggle Sur place
+    document.getElementById('detailSurplace').innerHTML = index >= 24 ? `
+        <div class="flex justify-between"><span class="text-gray-400">Entrées soirée</span><span>~${Math.round(surPlace / 15)} pers</span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Prix moyen</span><span>15 €</span></div>
+    ` : `<div class="text-center text-gray-500 py-2">Entrées sur place uniquement le soir</div>`;
+    
+    // Dépenses
+    document.getElementById('calcLieu').textContent = lieu.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcLieuDetail').textContent = lieu >= 4800 ? 'Acompte + Solde payés' : (lieu >= 3000 ? 'Acompte payé' : 'Non encore payé');
+    document.getElementById('calcAlcool').textContent = alcool.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcAlcoolDetail').textContent = alcool > 0 ? 'Stock acheté' : 'Pas encore acheté';
+    document.getElementById('calcPersonnel').textContent = personnel.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcPersonnel').className = personnel > 0 ? 'text-red-400 font-bold' : 'text-gray-500 font-bold';
+    document.getElementById('calcPersonnelDetail').innerHTML = personnel > 0 ? '✓ Payé' : '<span class="text-orange-400">⏳ Post-event</span>';
+    document.getElementById('calcDivers').textContent = divers.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcTotalDepenses').textContent = totalDepenses.toLocaleString('fr-FR') + ' €';
+    
+    // Détail toggle Lieu
+    document.getElementById('detailLieu').innerHTML = `
+        <div class="flex justify-between ${lieu >= 3000 ? '' : 'opacity-40'}"><span class="text-gray-400">Acompte (J-21)</span><span>${lieu >= 3000 ? '3 000' : '0'} €</span></div>
+        <div class="flex justify-between ${lieu >= 4800 ? '' : 'opacity-40'}"><span class="text-gray-400">Solde (J-7)</span><span>${lieu >= 4800 ? '1 800' : '0'} €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1">
+            <div class="flex justify-between"><span class="text-gray-400">Capacité</span><span>250 pers max</span></div>
+            <div class="flex justify-between"><span class="text-gray-400">Horaires</span><span>23h → 05h</span></div>
+        </div>
+    `;
+    
+    // Détail toggle Alcool
+    document.getElementById('detailAlcool').innerHTML = `
+        <div class="flex justify-between ${alcool > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Stock initial (J-17)</span><span>${alcool > 0 ? '2 000' : '0'} €</span></div>
+        <div class="flex justify-between text-green-400"><span>Invendus repris</span><span>~0 €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1">
+            <div class="flex justify-between"><span class="text-gray-400">Marge bar</span><span>40%</span></div>
+            <div class="text-[10px] text-gray-500 mt-1">💡 Dépôt-vente = pas de risque sur invendus</div>
+        </div>
+    `;
+    
+    // Détail toggle Personnel
+    document.getElementById('detailPersonnel').innerHTML = `
+        <div class="flex justify-between ${personnel > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">DJ</span><span>800 €</span></div>
+        <div class="flex justify-between ${personnel > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">Sécurité (2 agents)</span><span>400 €</span></div>
+        <div class="flex justify-between ${personnel > 0 ? '' : 'opacity-40'}"><span class="text-gray-400">SACEM (forfait)</span><span>187 €</span></div>
+        <div class="border-t border-gray-600 pt-1 mt-1">
+            <div class="text-[10px] ${personnel > 0 ? 'text-green-400' : 'text-orange-400'}">${personnel > 0 ? '✓ Payé après soirée' : '⚠️ Payé après la soirée'}</div>
+        </div>
+    `;
+    
+    // Détail toggle Divers
+    document.getElementById('detailDivers').innerHTML = `
+        <div class="flex justify-between ${divers >= 300 ? '' : 'opacity-40'}"><span class="text-gray-400">VIP invités (goodies)</span><span>${divers >= 300 ? '300' : '0'} €</span></div>
+        <div class="flex justify-between ${divers >= 150 ? '' : 'opacity-40'}"><span class="text-gray-400">Assurance</span><span>${divers >= 150 ? '150' : '0'} €</span></div>
+        <div class="flex justify-between"><span class="text-gray-400">Glace + conso</span><span>~0 €*</span></div>
+        <div class="text-[10px] text-gray-500 mt-1">*Inclus dans deal INWEE</div>
+    `;
+    
+    // Résultat
+    document.getElementById('calcRecettesLigne').textContent = totalRecettes.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcDepensesLigne').textContent = totalDepenses.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcSolde').textContent = (solde >= 0 ? '+' : '') + solde.toLocaleString('fr-FR') + ' €';
+    document.getElementById('calcSolde').className = 'font-bold font-mono text-lg ' + (solde >= 0 ? 'text-green-400' : 'text-red-400');
+    
+    // Indicateurs
+    document.getElementById('calcMarge').textContent = marge + '%';
+    document.getElementById('calcMarge').className = 'font-bold ' + (parseFloat(marge) >= 0 ? 'text-green-400' : 'text-red-400');
+    document.getElementById('calcPax').textContent = pax;
+    document.getElementById('calcTablesNb').textContent = tablesNb + '/10';
+    document.getElementById('calcRevPax').textContent = revPax + ' €';
+    
+    // Jauge
+    const depensesPct = totalRecettes > 0 ? (totalDepenses / totalRecettes * 100) : 100;
+    const beneficePct = totalRecettes > 0 ? Math.max(0, 100 - depensesPct) : 0;
+    document.getElementById('jaugeDepenses').style.width = Math.min(100, depensesPct) + '%';
+    document.getElementById('jaugeBenefice').style.width = beneficePct + '%';
+    document.getElementById('jaugeTexte').textContent = solde >= 0 
+        ? `Dépenses ${depensesPct.toFixed(0)}% | Bénéfice ${beneficePct.toFixed(0)}%`
+        : `Déficit: ${(-solde).toLocaleString('fr-FR')} €`;
+    document.getElementById('jaugeTotal').textContent = totalRecettes.toLocaleString('fr-FR') + ' €';
+    
+    // Timeline
+    const progress = ((index + 1) / 30 * 100);
+    document.getElementById('timelineProgress').style.width = progress + '%';
+    document.getElementById('timelinePosition').textContent = jour;
+}
+
+// Mise à jour du tableau détail Tarifs
+function updateDetailTarifs(index) {
+    const phase = getPhaseFromIndex(index);
+    const details = tarifsDetails[phase];
+    const jour = mainLabels[index];
+    
+    document.getElementById('detailTarifsJour').textContent = jour;
+    document.getElementById('detailTarifsPhase').textContent = details.phase;
+    document.getElementById('detailTarifsPhase').className = `text-xs px-2 py-1 rounded ${details.color} text-white`;
+    
+    let html = `<table class="w-full text-xs">
+        <thead class="text-gray-500">
+            <tr><th class="text-left py-1">Type</th><th class="text-center py-1">Prix</th><th class="text-center py-1">Stock</th><th class="text-left py-1">Avantages</th></tr>
+        </thead>
+        <tbody>`;
+    
+    details.tickets.forEach(t => {
+        html += `<tr class="border-t border-gray-800">
+            <td class="py-2 font-medium text-white">${t.type}</td>
+            <td class="py-2 text-center text-yellow-400 font-bold">${t.prix}</td>
+            <td class="py-2 text-center text-gray-400">${t.stock}</td>
+            <td class="py-2 text-gray-400">${t.perks}</td>
+        </tr>`;
+    });
+    
+    html += '</tbody></table>';
+    document.getElementById('detailTarifsContent').innerHTML = html;
+}
+
+// Mise à jour du tableau détail Instagram
+function updateDetailInstagram(index) {
+    const jour = commonLabels[index];
+    const details = instagramDetails[jour];
+    
+    document.getElementById('detailInstagramJour').textContent = jour;
+    
+    if (!details) {
+        document.getElementById('detailInstagramType').textContent = '—';
+        document.getElementById('detailInstagramType').className = 'text-xs px-2 py-1 rounded bg-gray-700 text-gray-400';
+        document.getElementById('detailInstagramContent').innerHTML = `<div class="text-center py-4 text-gray-500">Pas de publication prévue ce jour</div>`;
+        return;
+    }
+    
+    document.getElementById('detailInstagramType').textContent = details.emoji + ' ' + details.type;
+    document.getElementById('detailInstagramType').className = `text-xs px-2 py-1 rounded ${details.color} text-white`;
+    
+    const inweeHtml = details.inwee 
+        ? '<span class="text-xs px-2 py-0.5 rounded bg-green-900 text-green-400">✓ INWEE approuvé</span>'
+        : '<span class="text-xs px-2 py-0.5 rounded bg-yellow-900 text-yellow-400">⏳ En attente INWEE</span>';
+    
+    document.getElementById('detailInstagramContent').innerHTML = `
+        <div class="space-y-3">
+            <div>
+                <div class="text-gray-500 text-xs mb-1">Titre</div>
+                <div class="text-white font-medium">${details.titre}</div>
+            </div>
+            <div>
+                <div class="text-gray-500 text-xs mb-1">Contenu</div>
+                <div class="text-gray-300">${details.contenu}</div>
+            </div>
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-gray-500 text-xs mb-1">Call to Action</div>
+                    <div class="text-purple-400">${details.cta}</div>
+                </div>
+                <div>${inweeHtml}</div>
+            </div>
+        </div>
+    `;
+}
+
+// Synchronisation des tooltips entre les 6 graphiques + frise + tableaux détails
+function syncTooltip(sourceChart, index) {
+    if (isSyncing || syncedIndex === index) return;
+    isSyncing = true;
+    syncedIndex = index;
+    
+    // Highlight la phase correspondante sur la frise
+    highlightPhase(getPhaseFromIndex(index));
+    
+    // Mise à jour des tableaux détails
+    updateDetailTarifs(index);
+    updateDetailCalcul(index);
+    if (index < 24) {
+        updateDetailInstagram(index);
+    }
+    
+    // Liste de tous les graphiques
+    const allCharts = [mainChart, salesChart, dailyChart, tablesChart, tarifsChart, instagramChart];
+    
+    allCharts.forEach(chart => {
+        if (!chart || chart === sourceChart) return;
+        
+        const maxIndex = chart.data.labels.length - 1;
+        const targetIndex = Math.min(index, maxIndex);
+        
+        if (targetIndex >= 0 && targetIndex <= maxIndex) {
+            chart.tooltip.setActiveElements([{datasetIndex: 0, index: targetIndex}], {x: 0, y: 0});
+            chart.setActiveElements([{datasetIndex: 0, index: targetIndex}]);
+            chart.update('none');
+        }
+    });
+    
+    isSyncing = false;
+}
+
+function clearSyncedTooltips() {
+    if (isSyncing) return;
+    isSyncing = true;
+    syncedIndex = null;
+    
+    clearPhaseHighlight();
+    
+    [mainChart, salesChart, dailyChart, tablesChart, tarifsChart, instagramChart].forEach(c => {
+        if (c) {
+            c.tooltip.setActiveElements([], {x: 0, y: 0});
+            c.setActiveElements([]);
+            c.update('none');
+        }
+    });
+    
+    isSyncing = false;
+}
+
+// Toggle functions
+function toggleMainCurve(index, btn) {
+    if (!mainChart) return;
+    mainChart.data.datasets[index].hidden = !mainChart.data.datasets[index].hidden;
+    mainChart.update();
+    btn.dataset.active = (!mainChart.data.datasets[index].hidden).toString();
+    if (mainChart.data.datasets[index].hidden) {
+        btn.classList.add('bg-gray-800', 'text-gray-400');
+        btn.classList.remove('bg-rose-600','bg-green-600','bg-red-600','bg-pink-600','bg-cyan-600');
+    } else {
+        btn.classList.remove('bg-gray-800', 'text-gray-400');
+        const colors = ['bg-rose-600','bg-green-600','bg-red-600','bg-pink-600','bg-cyan-600'];
+        btn.classList.add(colors[index], 'text-white');
+    }
+}
+
+function toggleSalesCurve(index, btn) {
+    if (!salesChart) return;
+    salesChart.data.datasets[index].hidden = !salesChart.data.datasets[index].hidden;
+    salesChart.update();
+    if (salesChart.data.datasets[index].hidden) {
+        btn.classList.add('bg-gray-800', 'text-gray-400');
+        btn.classList.remove('bg-white','bg-pink-600','bg-cyan-600','text-gray-900');
+    } else {
+        btn.classList.remove('bg-gray-800', 'text-gray-400');
+        if (index === 0) btn.classList.add('bg-white', 'text-gray-900');
+        else if (index === 1) btn.classList.add('bg-pink-600', 'text-white');
+        else btn.classList.add('bg-cyan-600', 'text-white');
+    }
+}
+
+function toggleDailyCurve(index, btn) {
+    if (!dailyChart) return;
+    dailyChart.data.datasets[index].hidden = !dailyChart.data.datasets[index].hidden;
+    dailyChart.update();
+    if (dailyChart.data.datasets[index].hidden) {
+        btn.classList.add('bg-gray-800', 'text-gray-400');
+        btn.classList.remove('bg-pink-600','bg-cyan-600');
+    } else {
+        btn.classList.remove('bg-gray-800', 'text-gray-400');
+        btn.classList.add(index === 0 ? 'bg-pink-600' : 'bg-cyan-600', 'text-white');
+    }
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+    initMainChart();
+    initSalesChart();
+    initDailyChart();
+    initTablesChart();
+    initTarifsChart();
+    initInstagramChart();
+    loadPersonnel();
+    loadHypotheses();
+});
+
+function initMainChart() {
+    const ctx = document.getElementById('mainChart');
+    if (!ctx) return;
+    
+    // Données étendues sur 30 points (24 jours + Jour J + 5 heures soirée)
+    // Solde: démarre négatif (acompte), puis monte avec les ventes
+    const soldeData = [
+        -3000,-2900,-2800,-2700,-5500,-5300,-5100,-4900,-4700,-4500,  // J-24 à J-15
+        -6450,-6200,-5800,-5400,-5000,-4500,-4000,-3500,-2500,-1500,  // J-14 à J-5
+        -500,500,1500,2500,                                           // J-4 à J-1
+        3500,                                                         // Jour J (entrées jour)
+        4500,5500,6500,7000,7500                                      // Soirée
+    ];
+    
+    // Recettes cumulées
+    const recettesData = [
+        150,250,400,600,1000,1400,1800,2300,2900,3600,                // J-24 à J-15
+        4500,5200,5900,6700,7600,8400,9200,10000,11000,12000,         // J-14 à J-5
+        12800,13400,14000,14500,                                      // J-4 à J-1
+        15000,                                                        // Jour J
+        15500,16200,17000,17400,17600                                 // Soirée
+    ];
+    
+    // Dépenses cumulées (paliers aux moments d'achat)
+    const depensesData = [
+        3000,3000,3000,3000,6000,6000,6000,6000,6000,6000,            // J-24 à J-15 (acompte J-21, alcool J-17)
+        8750,8750,8750,8750,8750,8750,8750,8750,8750,8750,            // J-14 à J-5 (solde J-14)
+        8850,8950,9050,9150,                                          // J-4 à J-1 (petits achats)
+        9250,                                                         // Jour J
+        9350,9450,9550,9650,9750                                      // Soirée (pourboires, imprévus)
+    ];
+    
+    // Filles présentes (seulement soirée, index 24-29)
+    const girlsData = new Array(24).fill(null).concat([0, 20, 80, 110, 88, 50]);
+    
+    // Garçons présents
+    const boysData = new Array(24).fill(null).concat([0, 15, 65, 100, 75, 35]);
+    
+    // Marqueurs de dépenses: index correspond à mainLabels
+    const depenseMarkers = [
+        {i: 3, e: '⚓'},   // J-21: Acompte
+        {i: 10, e: '🍾'},  // J-14: Alcool
+        {i: 17, e: '💳'},  // J-7: Solde
+        {i: 24, e: '⭐'}   // Jour J: VIP
+    ];
+    
+    mainChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: mainLabels,
+            datasets: [
+                {label:'Solde net',data:soldeData,borderColor:'#f43f5e',backgroundColor:'rgba(244,63,94,0.1)',fill:true,tension:0.4,pointRadius:3,yAxisID:'y'},
+                {label:'Recettes',data:recettesData,borderColor:'#4ade80',borderDash:[5,5],fill:false,tension:0.4,pointRadius:0,yAxisID:'y'},
+                {label:'Dépenses',data:depensesData,borderColor:'#ef4444',borderDash:[3,3],fill:false,tension:0.1,
+                    pointRadius:depensesData.map((_,i)=>depenseMarkers.find(m=>m.i===i)?10:0),
+                    pointBackgroundColor:depensesData.map((_,i)=>depenseMarkers.find(m=>m.i===i)?'#ef4444':'transparent'),
+                    pointBorderColor:'#fff',pointBorderWidth:2,yAxisID:'y'},
+                {label:'Filles',data:girlsData,borderColor:'#f472b6',fill:false,tension:0.4,pointRadius:4,yAxisID:'y1'},
+                {label:'Garçons',data:boysData,borderColor:'#22d3ee',fill:false,tension:0.4,pointRadius:4,yAxisID:'y1'},
+            ]
+        },
+        options: {
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e, el, chart) => {
+                if (el.length) syncTooltip(chart, el[0].index);
+                else clearSyncedTooltips();
+            },
+            scales: {
+                x:{grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:9}}},
+                y:{position:'left',min:-8000,max:18000,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',callback:v=>v/1000+'K€'}},
+                y1:{position:'right',min:0,max:140,grid:{drawOnChartArea:false},ticks:{color:'#9ca3af',callback:v=>v+'p.'}},
+            },
+            plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(17,24,39,0.95)',padding:10}}
+        },
+        plugins:[{
+            id:'emojiLabels',
+            afterDraw:function(chart){
+                const ctx=chart.ctx,meta=chart.getDatasetMeta(2);
+                depenseMarkers.forEach(m=>{
+                    const pt=meta.data[m.i];
+                    if(pt){ctx.save();ctx.font='14px Arial';ctx.textAlign='center';ctx.fillText(m.e,pt.x,pt.y-5);ctx.restore();}
+                });
+            }
+        }]
+    });
+}
+
+function initSalesChart() {
+    const ctx = document.getElementById('salesCumulativeChart');
+    if (!ctx) return;
+    
+    const fillesCumul=[],garconsCumul=[],totalCumul=[];
+    let cumF=0,cumM=0;
+    for(let i=0;i<24;i++){cumF+=dailyF[i];cumM+=dailyM[i];fillesCumul.push(cumF);garconsCumul.push(cumM);totalCumul.push(cumF+cumM);}
+    
+    salesChart = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels:commonLabels,
+            datasets:[
+                {label:'Total',data:totalCumul,borderColor:'#fff',borderWidth:2,fill:false,tension:0.3,pointRadius:2},
+                {label:'Filles',data:fillesCumul,borderColor:'#f472b6',backgroundColor:'rgba(244,114,182,0.15)',fill:true,tension:0.3,pointRadius:2},
+                {label:'Garçons',data:garconsCumul,borderColor:'#22d3ee',backgroundColor:'rgba(34,211,238,0.15)',fill:true,tension:0.3,pointRadius:2},
+            ]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e,el,chart)=>{if(el.length)syncTooltip(chart,el[0].index);else clearSyncedTooltips();},
+            scales:{
+                x:{grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:8},maxTicksLimit:8}},
+                y:{min:0,max:220,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',font:{size:9}}},
+            },
+            plugins:{legend:{display:false}}
+        }
+    });
+}
+
+function initDailyChart() {
+    const ctx = document.getElementById('salesDailyChart');
+    if (!ctx) return;
+    
+    dailyChart = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels:commonLabels,
+            datasets:[
+                {label:'Filles',data:dailyF,backgroundColor:'rgba(244,114,182,0.8)',borderColor:'#f472b6',borderWidth:1},
+                {label:'Garçons',data:dailyM,backgroundColor:'rgba(34,211,238,0.8)',borderColor:'#22d3ee',borderWidth:1},
+            ]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e,el,chart)=>{if(el.length)syncTooltip(chart,el[0].index);else clearSyncedTooltips();},
+            scales:{
+                x:{stacked:true,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:8},maxTicksLimit:8}},
+                y:{stacked:true,min:0,max:15,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',font:{size:9}}},
+            },
+            plugins:{legend:{display:false}}
+        }
+    });
+}
+
+function initTablesChart() {
+    const ctx = document.getElementById('tablesChart');
+    if (!ctx) return;
+    
+    // Cumul des tables réservées
+    const tablesCumul = [];
+    let cumT = 0;
+    for(let i=0;i<24;i++){cumT+=tablesSales[i];tablesCumul.push(cumT);}
+    
+    tablesChart = new Chart(ctx, {
+        type:'line',
+        data:{
+            labels:commonLabels,
+            datasets:[
+                {label:'Tables réservées',data:tablesCumul,borderColor:'#a855f7',backgroundColor:'rgba(168,85,247,0.2)',fill:true,tension:0.3,pointRadius:3,pointBackgroundColor:'#a855f7'},
+            ]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e,el,chart)=>{if(el.length)syncTooltip(chart,el[0].index);else clearSyncedTooltips();},
+            scales:{
+                x:{grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:8},maxTicksLimit:8}},
+                y:{min:0,max:10,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',font:{size:9},stepSize:2}},
+            },
+            plugins:{legend:{display:false}}
+        }
+    });
+}
+
+function initTarifsChart() {
+    const ctx = document.getElementById('tarifsChart');
+    if (!ctx) return;
+    
+    // Couleurs par phase
+    const phaseColors = tarifsData.map((_, i) => {
+        if (i < 7) return 'rgba(22,163,74,0.8)';      // green-600
+        if (i < 14) return 'rgba(217,119,6,0.8)';     // amber-600
+        if (i < 20) return 'rgba(202,138,4,0.8)';     // yellow-600
+        if (i < 24) return 'rgba(234,88,12,0.8)';     // orange-600
+        return 'rgba(13,148,136,0.8)';                // teal-600
+    });
+    
+    tarifsChart = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: mainLabels,
+            datasets:[
+                {label:'Tarif €',data:tarifsData,backgroundColor:phaseColors,borderColor:phaseColors.map(c=>c.replace('0.8','1')),borderWidth:1},
+            ]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e,el,chart)=>{if(el.length)syncTooltip(chart,el[0].index);else clearSyncedTooltips();},
+            scales:{
+                x:{grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:8},maxTicksLimit:10}},
+                y:{min:0,max:30,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',font:{size:9},callback:v=>v+'€'}},
+            },
+            plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+'€'}}}
+        }
+    });
+}
+
+function initInstagramChart() {
+    const ctx = document.getElementById('instagramChart');
+    if (!ctx) return;
+    
+    // Données séparées par type (1=post, 2=reel, 3=story, 4=QCM musique, 5=plan table)
+    const posts = instagramData.map(v => v === 1 ? 1 : 0);
+    const reels = instagramData.map(v => v === 2 ? 1 : 0);
+    const stories = instagramData.map(v => v === 3 ? 1 : 0);
+    const qcm = instagramData.map(v => v === 4 ? 1 : 0);
+    const plan = instagramData.map(v => v === 5 ? 1 : 0);
+    
+    instagramChart = new Chart(ctx, {
+        type:'bar',
+        data:{
+            labels: commonLabels,
+            datasets:[
+                {label:'Post',data:posts,backgroundColor:'rgba(37,99,235,0.8)',borderColor:'#2563eb',borderWidth:1},
+                {label:'Reel',data:reels,backgroundColor:'rgba(219,39,119,0.8)',borderColor:'#db2777',borderWidth:1},
+                {label:'Story',data:stories,backgroundColor:'rgba(147,51,234,0.8)',borderColor:'#9333ea',borderWidth:1},
+                {label:'QCM Musique',data:qcm,backgroundColor:'rgba(249,115,22,0.8)',borderColor:'#f97316',borderWidth:1},
+                {label:'Plan Table',data:plan,backgroundColor:'rgba(217,119,6,0.8)',borderColor:'#d97706',borderWidth:1},
+            ]
+        },
+        options:{
+            responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            onHover:(e,el,chart)=>{if(el.length)syncTooltip(chart,el[0].index);else clearSyncedTooltips();},
+            scales:{
+                x:{stacked:true,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:8},maxTicksLimit:8}},
+                y:{stacked:true,min:0,max:2,grid:{color:'rgba(75,85,99,0.3)'},ticks:{display:false}},
+            },
+            plugins:{legend:{display:false},tooltip:{callbacks:{
+                title:ctx=>ctx[0].label,
+                label:ctx=>{
+                    if(ctx.parsed.y===0) return null;
+                    return ctx.dataset.label;
+                }
+            }}}
+        }
+    });
+}
+
+// ===================== PERSONNEL =====================
+let personnelData = [];
+const roles = ['DJ','Sécurité','Barman','Photographe','Hôtesse','Ingé son','Performeuse','Manager','Runner','Autre'];
+
+function loadPersonnel() {
+    const saved = localStorage.getItem('afronight_personnel');
+    personnelData = saved ? JSON.parse(saved) : [
+        {id:1,nom:'DJ Sams',role:'DJ',telephone:'',salaire:800,statut:'confirmé'},
+        {id:2,nom:'Agent 1',role:'Sécurité',telephone:'',salaire:200,statut:'confirmé'},
+        {id:3,nom:'Agent 2',role:'Sécurité',telephone:'',salaire:200,statut:'confirmé'},
+        {id:4,nom:'',role:'Barman',telephone:'',salaire:200,statut:'à confirmer'},
+        {id:5,nom:'',role:'Photographe',telephone:'',salaire:500,statut:'optionnel'},
+    ];
+    renderPersonnel();
+}
+
+function savePersonnel() {
+    localStorage.setItem('afronight_personnel', JSON.stringify(personnelData));
+    document.getElementById('saveStatus').textContent = 'Sauvegardé ✓';
+}
+
+function addPersonnel() {
+    const newId = personnelData.length ? Math.max(...personnelData.map(p=>p.id))+1 : 1;
+    personnelData.push({id:newId,nom:'',role:'Autre',telephone:'',salaire:0,statut:'à confirmer'});
+    renderPersonnel();
+}
+
+function deletePersonnel(id) {
+    personnelData = personnelData.filter(p=>p.id!==id);
+    renderPersonnel();
+    savePersonnel();
+}
+
+function updatePersonnel(id, field, value) {
+    const p = personnelData.find(x=>x.id===id);
+    if(p){p[field]=field==='salaire'?parseFloat(value)||0:value;}
+    clearTimeout(window.saveTimeout);
+    window.saveTimeout = setTimeout(()=>{savePersonnel();updateTotals();},800);
+}
+
+function updateTotals() {
+    document.getElementById('totalSalaires').textContent = personnelData.reduce((s,p)=>s+(p.salaire||0),0)+' €';
+    document.getElementById('personnelCount').textContent = personnelData.length+' pers.';
+}
+
+function renderPersonnel() {
+    document.getElementById('personnelBody').innerHTML = personnelData.map(p=>`
+        <tr class="hover:bg-gray-800/50 ${p.statut==='annulé'?'opacity-50':''}">
+            <td class="px-3 py-2"><input type="text" value="${p.nom}" onchange="updatePersonnel(${p.id},'nom',this.value)" placeholder="Nom..." class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-purple-500 focus:outline-none w-full text-sm"></td>
+            <td class="px-3 py-2"><select onchange="updatePersonnel(${p.id},'role',this.value)" class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs">${roles.map(r=>`<option ${p.role===r?'selected':''}>${r}</option>`).join('')}</select></td>
+            <td class="px-3 py-2"><input type="tel" value="${p.telephone}" onchange="updatePersonnel(${p.id},'telephone',this.value)" placeholder="06..." class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-purple-500 focus:outline-none w-20 text-xs text-gray-400"></td>
+            <td class="px-3 py-2 text-center"><input type="number" value="${p.salaire}" onchange="updatePersonnel(${p.id},'salaire',this.value)" class="bg-gray-800 border border-gray-700 rounded px-1 py-1 text-xs w-16 text-center">€</td>
+            <td class="px-3 py-2 text-center"><select onchange="updatePersonnel(${p.id},'statut',this.value)" class="bg-gray-800 border border-gray-700 rounded px-1 py-1 text-[10px] ${p.statut==='confirmé'?'text-green-400':p.statut==='à confirmer'?'text-yellow-400':p.statut==='optionnel'?'text-blue-400':'text-red-400'}">
+                <option value="confirmé" ${p.statut==='confirmé'?'selected':''}>✅</option>
+                <option value="à confirmer" ${p.statut==='à confirmer'?'selected':''}>⏳</option>
+                <option value="optionnel" ${p.statut==='optionnel'?'selected':''}>❓</option>
+                <option value="annulé" ${p.statut==='annulé'?'selected':''}>❌</option>
+            </select></td>
+            <td class="px-3 py-2"><button onclick="deletePersonnel(${p.id})" class="text-gray-500 hover:text-red-400">✕</button></td>
+        </tr>
+    `).join('');
+    updateTotals();
+}
+
+// ===================== HYPOTHÈSES =====================
+let hypothesesData = [];
+const categories = ['Billetterie','Bar','Tables VIP','Lieu','Personnel','Marketing','Divers'];
+const confiances = ['haute','moyenne','basse'];
+
+function loadHypotheses() {
+    const saved = localStorage.getItem('afronight_hypotheses');
+    hypothesesData = saved ? JSON.parse(saved) : [
+        {id:1, categorie:'Billetterie', hypothese:'Prix moyen ticket pré-vente', valeur:'14 €', source:'Moyenne pondérée des phases', confiance:'haute'},
+        {id:2, categorie:'Billetterie', hypothese:'Taux de remplissage pré-vente', valeur:'85%', source:'Objectif basé sur édition précédente', confiance:'moyenne'},
+        {id:3, categorie:'Billetterie', hypothese:'Ratio filles / garçons', valeur:'55/45', source:'Contrainte contractuelle INWEE', confiance:'haute'},
+        {id:4, categorie:'Billetterie', hypothese:'Entrées sur place (hors pré-vente)', valeur:'10 pers', source:'Estimation conservatrice', confiance:'basse'},
+        {id:5, categorie:'Bar', hypothese:'Consommation moyenne par personne', valeur:'25 €', source:'Benchmark soirées similaires', confiance:'moyenne'},
+        {id:6, categorie:'Bar', hypothese:'Part paiements TPE', valeur:'60%', source:'Tendance marché 2024', confiance:'moyenne'},
+        {id:7, categorie:'Bar', hypothese:'Commission TPE', valeur:'6.5%', source:'Contrat SumUp', confiance:'haute'},
+        {id:8, categorie:'Bar', hypothese:'Marge nette bar (après alcool)', valeur:'40%', source:'Deal dépôt-vente INWEE', confiance:'haute'},
+        {id:9, categorie:'Tables VIP', hypothese:'Taux de réservation tables', valeur:'80%', source:'8/10 tables', confiance:'moyenne'},
+        {id:10, categorie:'Tables VIP', hypothese:'Prix moyen table', valeur:'800 €', source:'Mix formules Standard/Premium', confiance:'haute'},
+        {id:11, categorie:'Tables VIP', hypothese:'Commission promoteur', valeur:'15%', source:'Accord verbal', confiance:'moyenne'},
+        {id:12, categorie:'Lieu', hypothese:'Coût location Péniche', valeur:'4 800 €', source:'Devis signé', confiance:'haute'},
+        {id:13, categorie:'Lieu', hypothese:'Capacité maximale', valeur:'250 pers', source:'Jauge officielle', confiance:'haute'},
+        {id:14, categorie:'Personnel', hypothese:'Coût DJ', valeur:'800 €', source:'Devis confirmé', confiance:'haute'},
+        {id:15, categorie:'Personnel', hypothese:'Sécurité (2 agents)', valeur:'400 €', source:'Tarif standard', confiance:'moyenne'},
+        {id:16, categorie:'Marketing', hypothese:'Budget Instagram Ads', valeur:'150 €', source:'Optionnel si organique insuffisant', confiance:'basse'},
+        {id:17, categorie:'Divers', hypothese:'Glace + consommables', valeur:'100 €', source:'Estimation', confiance:'moyenne'},
+        {id:18, categorie:'Divers', hypothese:'Marge imprévus', valeur:'5%', source:'Best practice événementiel', confiance:'moyenne'},
+    ];
+    renderHypotheses();
+}
+
+function saveHypotheses() {
+    localStorage.setItem('afronight_hypotheses', JSON.stringify(hypothesesData));
+    document.getElementById('hypothesesStatus').textContent = 'Sauvegardé ✓';
+}
+
+function addHypothese() {
+    const newId = hypothesesData.length ? Math.max(...hypothesesData.map(h=>h.id))+1 : 1;
+    hypothesesData.push({id:newId, categorie:'Divers', hypothese:'', valeur:'', source:'', confiance:'moyenne'});
+    renderHypotheses();
+}
+
+function deleteHypothese(id) {
+    hypothesesData = hypothesesData.filter(h=>h.id!==id);
+    renderHypotheses();
+    saveHypotheses();
+}
+
+function updateHypothese(id, field, value) {
+    const h = hypothesesData.find(x=>x.id===id);
+    if(h) h[field] = value;
+    clearTimeout(window.hypothesesSaveTimeout);
+    window.hypothesesSaveTimeout = setTimeout(()=>saveHypotheses(), 800);
+}
+
+function renderHypotheses() {
+    const confColor = {haute:'bg-green-500',moyenne:'bg-yellow-500',basse:'bg-red-500'};
+    const confText = {haute:'text-green-400',moyenne:'text-yellow-400',basse:'text-red-400'};
+    
+    document.getElementById('hypothesesBody').innerHTML = hypothesesData.map((h, idx)=>`
+        <tr class="hover:bg-gray-800/50">
+            <td class="px-3 py-2 text-gray-500 text-xs">${idx+1}</td>
+            <td class="px-3 py-2">
+                <select onchange="updateHypothese(${h.id},'categorie',this.value)" class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs">
+                    ${categories.map(c=>`<option ${h.categorie===c?'selected':''}>${c}</option>`).join('')}
+                </select>
+            </td>
+            <td class="px-3 py-2">
+                <input type="text" value="${h.hypothese}" onchange="updateHypothese(${h.id},'hypothese',this.value)" 
+                    placeholder="Description de l'hypothèse..." 
+                    class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-purple-500 focus:outline-none w-full text-sm">
+            </td>
+            <td class="px-3 py-2 text-center">
+                <input type="text" value="${h.valeur}" onchange="updateHypothese(${h.id},'valeur',this.value)" 
+                    placeholder="—" 
+                    class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs w-20 text-center font-mono">
+            </td>
+            <td class="px-3 py-2">
+                <input type="text" value="${h.source}" onchange="updateHypothese(${h.id},'source',this.value)" 
+                    placeholder="Source ou justification..." 
+                    class="bg-transparent border-b border-transparent hover:border-gray-600 focus:border-purple-500 focus:outline-none w-full text-xs text-gray-400">
+            </td>
+            <td class="px-3 py-2 text-center">
+                <select onchange="updateHypothese(${h.id},'confiance',this.value)" 
+                    class="bg-gray-800 border border-gray-700 rounded px-2 py-1 text-xs ${confText[h.confiance]}">
+                    <option value="haute" ${h.confiance==='haute'?'selected':''}>🟢 Haute</option>
+                    <option value="moyenne" ${h.confiance==='moyenne'?'selected':''}>🟡 Moyenne</option>
+                    <option value="basse" ${h.confiance==='basse'?'selected':''}>🔴 Basse</option>
+                </select>
+            </td>
+            <td class="px-3 py-2">
+                <button onclick="deleteHypothese(${h.id})" class="text-gray-500 hover:text-red-400">✕</button>
+            </td>
+        </tr>
+    `).join('');
+}
+</script>
+{% endblock %}

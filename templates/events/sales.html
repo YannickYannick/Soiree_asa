@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+
+{% block title %}Suivi des ventes — Afro Night Manager{% endblock %}
+
+{% block content %}
+<div x-data="salesData()">
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">Suivi des ventes de billets</h1>
+        <p class="text-gray-400">Évolution des ventes pré-soirée par genre</p>
+    </div>
+    
+    <!-- Statistiques -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-sm text-gray-400 mb-1">Total vendus</div>
+                    <div class="text-2xl font-bold text-white">{{ total_sold }}</div>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="mt-3 w-full bg-gray-800 rounded-full h-2">
+                <div class="bg-green-500 h-2 rounded-full" style="width: {% widthratio total_sold capacity 100 %}%"></div>
+            </div>
+            <div class="text-xs text-gray-500 mt-1">{{ total_sold }} / {{ capacity }} places</div>
+        </div>
+        
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-sm text-gray-400 mb-1">Filles</div>
+                    <div class="text-2xl font-bold text-pink-400">{{ total_female }}</div>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-pink-500 to-rose-600 flex items-center justify-center">
+                    <span class="text-xl">♀</span>
+                </div>
+            </div>
+            <div class="text-xs text-gray-500 mt-2">
+                {% widthratio total_female total_sold 100 %}% du total
+            </div>
+        </div>
+        
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-sm text-gray-400 mb-1">Garçons</div>
+                    <div class="text-2xl font-bold text-cyan-400">{{ total_male }}</div>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center">
+                    <span class="text-xl">♂</span>
+                </div>
+            </div>
+            <div class="text-xs text-gray-500 mt-2">
+                {% widthratio total_male total_sold 100 %}% du total
+            </div>
+        </div>
+        
+        <div class="bg-gray-900 rounded-xl border border-gray-800 p-4">
+            <div class="flex items-center justify-between">
+                <div>
+                    <div class="text-sm text-gray-400 mb-1">Ratio F/H</div>
+                    <div class="text-2xl font-bold {% if total_female >= total_male %}text-green-400{% else %}text-yellow-400{% endif %}">
+                        {% widthratio total_female total_sold 100 %}% / {% widthratio total_male total_sold 100 %}%
+                    </div>
+                </div>
+                <div class="w-12 h-12 rounded-lg bg-gray-800 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-xs {% if total_female >= total_sold * 0.45 %}text-green-400{% else %}text-yellow-400{% endif %} mt-2">
+                Objectif : ≥ 45% femmes
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toggles de graphiques -->
+    <div class="flex items-center space-x-4 mb-4">
+        <button @click="chartType = 'cumulative'" 
+                :class="chartType === 'cumulative' ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition">
+            Courbe cumulée
+        </button>
+        <button @click="chartType = 'daily'" 
+                :class="chartType === 'daily' ? 'bg-purple-600 text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'"
+                class="px-4 py-2 rounded-lg text-sm font-medium transition">
+            Ventes journalières
+        </button>
+    </div>
+    
+    <!-- Graphique -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6 mb-6">
+        <div class="h-80">
+            <canvas id="salesChart"></canvas>
+        </div>
+        
+        <!-- Légende -->
+        <div class="flex items-center justify-center space-x-6 mt-4 text-sm">
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-pink-500"></div>
+                <span class="text-gray-400">Filles</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-cyan-500"></div>
+                <span class="text-gray-400">Garçons</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-white"></div>
+                <span class="text-gray-400">Total</span>
+            </div>
+            <div class="flex items-center space-x-2">
+                <div class="w-6 h-0.5 border-t-2 border-dashed border-gray-500"></div>
+                <span class="text-gray-400">Capacité</span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Marqueurs de phases -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-lg font-semibold mb-4">Phases de vente</h2>
+        <div class="flex h-4 rounded-lg overflow-hidden">
+            <div class="flex-[7] bg-green-600 relative group">
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white opacity-0 group-hover:opacity-100">Super EB</span>
+            </div>
+            <div class="flex-[7] bg-blue-600 relative group">
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white opacity-0 group-hover:opacity-100">Early Bird</span>
+            </div>
+            <div class="flex-[6] bg-yellow-600 relative group">
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white opacity-0 group-hover:opacity-100">Pré-vente</span>
+            </div>
+            <div class="flex-[4] bg-orange-600 relative group">
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-medium text-white opacity-0 group-hover:opacity-100">Last Min</span>
+            </div>
+        </div>
+        <div class="flex justify-between mt-2 text-xs text-gray-500">
+            <span>J-24</span>
+            <span>J-17</span>
+            <span>J-10</span>
+            <span>J-4</span>
+            <span>J-0</span>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function salesData() {
+    return {
+        chartType: 'cumulative',
+        chart: null,
+        
+        init() {
+            this.initChart();
+            this.$watch('chartType', () => this.updateChart());
+        },
+        
+        initChart() {
+            const ctx = document.getElementById('salesChart').getContext('2d');
+            
+            // Données simulées sur 24 jours
+            const labels = [];
+            const girlsCumulative = [];
+            const boysCumulative = [];
+            const totalCumulative = [];
+            const girlsDaily = [];
+            const boysDaily = [];
+            
+            let cumF = 0, cumM = 0;
+            
+            // Pattern de ventes simulé
+            const salesPattern = [
+                {F: 8, M: 3}, {F: 5, M: 2}, {F: 4, M: 2}, {F: 3, M: 1}, {F: 4, M: 2}, {F: 6, M: 3}, {F: 5, M: 2},
+                {F: 7, M: 4}, {F: 5, M: 3}, {F: 6, M: 4}, {F: 4, M: 3}, {F: 5, M: 3}, {F: 6, M: 4}, {F: 8, M: 5},
+                {F: 6, M: 4}, {F: 4, M: 3}, {F: 5, M: 4}, {F: 6, M: 5}, {F: 5, M: 4}, {F: 7, M: 5},
+                {F: 4, M: 6}, {F: 3, M: 5}, {F: 4, M: 7}, {F: 5, M: 8},
+            ];
+            
+            for (let i = 0; i < 24; i++) {
+                labels.push('J-' + (24 - i));
+                
+                const day = salesPattern[i] || {F: 0, M: 0};
+                girlsDaily.push(day.F);
+                boysDaily.push(day.M);
+                
+                cumF += day.F;
+                cumM += day.M;
+                
+                girlsCumulative.push(cumF);
+                boysCumulative.push(cumM);
+                totalCumulative.push(cumF + cumM);
+            }
+            
+            this.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Filles',
+                            data: girlsCumulative,
+                            borderColor: '#ec4899',
+                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                        },
+                        {
+                            label: 'Garçons',
+                            data: boysCumulative,
+                            borderColor: '#06b6d4',
+                            backgroundColor: 'rgba(6, 182, 212, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                        },
+                        {
+                            label: 'Total',
+                            data: totalCumulative,
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            fill: false,
+                            tension: 0.4,
+                        },
+                        {
+                            label: 'Capacité',
+                            data: Array(24).fill({{ capacity }}),
+                            borderColor: '#6b7280',
+                            borderDash: [5, 5],
+                            borderWidth: 1,
+                            fill: false,
+                            pointRadius: 0,
+                        },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)',
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            max: {{ capacity }} + 20,
+                            grid: {
+                                color: 'rgba(75, 85, 99, 0.3)',
+                            },
+                            ticks: {
+                                color: '#9ca3af',
+                            }
+                        },
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                            borderColor: 'rgba(75, 85, 99, 0.5)',
+                            borderWidth: 1,
+                        }
+                    }
+                }
+            });
+            
+            // Stocker les données pour les switchs
+            this.cumulativeData = {
+                girls: girlsCumulative,
+                boys: boysCumulative,
+                total: totalCumulative,
+            };
+            this.dailyData = {
+                girls: girlsDaily,
+                boys: boysDaily,
+            };
+        },
+        
+        updateChart() {
+            if (this.chartType === 'cumulative') {
+                this.chart.config.type = 'line';
+                this.chart.data.datasets[0].data = this.cumulativeData.girls;
+                this.chart.data.datasets[0].fill = true;
+                this.chart.data.datasets[1].data = this.cumulativeData.boys;
+                this.chart.data.datasets[1].fill = true;
+                this.chart.data.datasets[2].data = this.cumulativeData.total;
+                this.chart.data.datasets[2].hidden = false;
+                this.chart.data.datasets[3].hidden = false;
+            } else {
+                this.chart.config.type = 'bar';
+                this.chart.data.datasets[0].data = this.dailyData.girls;
+                this.chart.data.datasets[0].fill = false;
+                this.chart.data.datasets[1].data = this.dailyData.boys;
+                this.chart.data.datasets[1].fill = false;
+                this.chart.data.datasets[2].hidden = true;
+                this.chart.data.datasets[3].hidden = true;
+            }
+            this.chart.update();
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    Alpine.data('salesData', salesData);
+});
+</script>
+{% endblock %}

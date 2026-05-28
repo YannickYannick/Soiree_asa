@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+
+{% block title %}Calendrier Instagram — Afro Night Manager{% endblock %}
+
+{% block content %}
+<div x-data="instagramData()">
+    <!-- En-tête -->
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold mb-2">Stratégie Instagram</h1>
+        <p class="text-gray-400">14 publications planifiées sur 24 jours</p>
+    </div>
+    
+    <!-- Alerte accord venue -->
+    {% if not venue_approval %}
+    <div class="bg-red-900/30 border border-red-700 rounded-xl p-4 mb-6">
+        <div class="flex items-start space-x-3">
+            <svg class="w-6 h-6 text-red-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <div>
+                <div class="font-medium text-red-300">Publications verrouillées</div>
+                <p class="text-sm text-red-200/80 mt-1">
+                    Accord écrit INWEE obligatoire avant toute publication. Contactez <strong>matthieu@inwee.fr</strong> pour validation.
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- Filtres -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-400">Phase :</span>
+                <select onchange="window.location.href='?phase=' + this.value + '&type={{ type_filter }}'" 
+                        class="bg-gray-800 border border-gray-700 rounded-lg px-3 py-1.5 text-sm">
+                    <option value="">Toutes</option>
+                    {% for phase in all_phases %}
+                    <option value="{{ phase }}" {% if phase == phase_filter %}selected{% endif %}>{{ phase }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-400">Type :</span>
+                <div class="flex space-x-1">
+                    <a href="?phase={{ phase_filter }}&type=" 
+                       class="px-3 py-1.5 rounded-lg text-sm {% if not type_filter %}bg-purple-600 text-white{% else %}bg-gray-800 text-gray-400 hover:bg-gray-700{% endif %}">
+                        Tous
+                    </a>
+                    <a href="?phase={{ phase_filter }}&type=Post" 
+                       class="px-3 py-1.5 rounded-lg text-sm {% if type_filter == 'Post' %}bg-purple-600 text-white{% else %}bg-gray-800 text-gray-400 hover:bg-gray-700{% endif %}">
+                        Post
+                    </a>
+                    <a href="?phase={{ phase_filter }}&type=Reel" 
+                       class="px-3 py-1.5 rounded-lg text-sm {% if type_filter == 'Reel' %}bg-purple-600 text-white{% else %}bg-gray-800 text-gray-400 hover:bg-gray-700{% endif %}">
+                        Reel
+                    </a>
+                    <a href="?phase={{ phase_filter }}&type=Story" 
+                       class="px-3 py-1.5 rounded-lg text-sm {% if type_filter == 'Story' %}bg-purple-600 text-white{% else %}bg-gray-800 text-gray-400 hover:bg-gray-700{% endif %}">
+                        Story
+                    </a>
+                </div>
+            </div>
+            
+            <div class="ml-auto text-sm text-gray-400">
+                {{ posts|length }} publication{{ posts|length|pluralize:"s" }}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tableau des publications -->
+    <div class="bg-gray-900 rounded-xl border border-gray-800 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-800">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Date</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">J-x</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Phase</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Type</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Titre</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Contenu</th>
+                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">CTA</th>
+                        <th class="px-4 py-3 text-center text-xs font-medium text-gray-400 uppercase tracking-wider">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-800">
+                    {% for post in posts %}
+                    <tr class="hover:bg-gray-800/50 transition {% if post.is_locked %}opacity-60{% endif %}">
+                        <td class="px-4 py-4 text-sm">
+                            {{ post.scheduled_date|date:"d M" }}
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-300">
+                                J-{{ post.days_before }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium
+                                {% if 'Super' in post.phase %}bg-green-900/50 text-green-300
+                                {% elif 'Early' in post.phase %}bg-blue-900/50 text-blue-300
+                                {% elif 'Pré' in post.phase %}bg-yellow-900/50 text-yellow-300
+                                {% elif 'Last' in post.phase %}bg-orange-900/50 text-orange-300
+                                {% else %}bg-red-900/50 text-red-300{% endif %}">
+                                {{ post.phase }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="inline-flex items-center space-x-1">
+                                {% if post.post_type == 'Post' %}
+                                <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                {% elif post.post_type == 'Reel' %}
+                                <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                </svg>
+                                {% else %}
+                                <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {% endif %}
+                                <span class="text-sm">{{ post.post_type }}</span>
+                            </span>
+                        </td>
+                        <td class="px-4 py-4">
+                            <span class="font-medium text-white">{{ post.title }}</span>
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-400 max-w-xs truncate">
+                            {{ post.content }}
+                        </td>
+                        <td class="px-4 py-4 text-sm text-gray-400 max-w-xs truncate">
+                            {{ post.cta }}
+                        </td>
+                        <td class="px-4 py-4 text-center">
+                            {% if post.is_locked %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-900/50 text-red-300">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                </svg>
+                                En attente
+                            </span>
+                            {% elif post.status == 'approved' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-900/50 text-green-300">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                </svg>
+                                Approuvé
+                            </span>
+                            {% elif post.status == 'published' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-blue-300">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                Publié
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-800 text-gray-400">
+                                Brouillon
+                            </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Contrainte contractuelle -->
+    <div class="mt-6 bg-gray-900 rounded-xl border border-gray-800 p-6">
+        <h2 class="text-lg font-semibold mb-4">Contrainte contractuelle</h2>
+        <div class="flex items-start space-x-3">
+            <svg class="w-5 h-5 text-yellow-400 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <div>
+                <p class="text-gray-300">
+                    Chaque publication est <strong>verrouillée</strong> jusqu'à réception de l'accord écrit INWEE.
+                </p>
+                <p class="text-sm text-gray-500 mt-2">
+                    Contact : <a href="mailto:matthieu@inwee.fr" class="text-purple-400 hover:underline">matthieu@inwee.fr</a> — Matthieu Bouaziz
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function instagramData() {
+    return {
+        // État pour l'édition (future feature)
+    }
+}
+</script>
+{% endblock %}
