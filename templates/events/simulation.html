@@ -185,12 +185,15 @@
             <div class="h-48">
                 <canvas id="instagramChart"></canvas>
             </div>
-            <div class="mt-2 flex flex-wrap items-center justify-center gap-3 text-[10px] text-gray-500">
+            <div class="mt-2 flex flex-wrap items-center justify-center gap-2 text-[10px] text-gray-500">
                 <span class="flex items-center"><span class="w-3 h-3 rounded bg-blue-600 mr-1"></span>Post</span>
                 <span class="flex items-center"><span class="w-3 h-3 rounded bg-pink-600 mr-1"></span>Reel</span>
                 <span class="flex items-center"><span class="w-3 h-3 rounded bg-purple-600 mr-1"></span>Story</span>
                 <span class="flex items-center"><span class="w-3 h-3 rounded bg-orange-500 mr-1"></span>QCM 🎵</span>
                 <span class="flex items-center"><span class="w-3 h-3 rounded bg-amber-600 mr-1"></span>Plan 🛋️</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-rose-500 mr-1"></span>Outfit 👗</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-emerald-500 mr-1"></span>Tables 🔥</span>
+                <span class="flex items-center"><span class="w-3 h-3 rounded bg-yellow-500 mr-1"></span>Concours 🎁</span>
             </div>
         </div>
     </div>
@@ -509,7 +512,8 @@
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
             <div class="text-sm text-gray-400 mb-2">Total recettes</div>
-            <div class="text-3xl font-bold text-green-400">13 586 €</div>
+            <div class="text-3xl font-bold text-green-400">14 930 €</div>
+            <div class="text-xs text-gray-500 mt-1">250 pax (dont 2 concours)</div>
         </div>
         <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
             <div class="text-sm text-gray-400 mb-2">Total dépenses</div>
@@ -517,11 +521,11 @@
         </div>
         <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
             <div class="text-sm text-gray-400 mb-2">Résultat net</div>
-            <div class="text-3xl font-bold text-green-400">+4 949 €</div>
+            <div class="text-3xl font-bold text-green-400">+6 293 €</div>
         </div>
         <div class="bg-gray-900 rounded-xl border border-gray-800 p-5">
             <div class="text-sm text-gray-400 mb-2">Marge nette</div>
-            <div class="text-3xl font-bold text-green-400">36.4 %</div>
+            <div class="text-3xl font-bold text-green-400">42.1 %</div>
         </div>
     </div>
     
@@ -530,11 +534,12 @@
         <div class="bg-gray-900 rounded-xl border border-l-4 border-l-green-500 border-gray-800 p-6">
             <h3 class="text-lg font-semibold text-green-400 mb-4">Recettes</h3>
             <div class="space-y-3 text-sm">
-                <div class="flex justify-between"><span class="text-gray-400">Tickets pré-vente</span><span>2 731 €</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Tables nettes (−promo)</span><span>5 900 €</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Bar net (−TPE 6,5 %)</span><span>4 805 €</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Entrées sur place</span><span>150 €</span></div>
-                <div class="border-t border-gray-700 pt-3 flex justify-between font-semibold"><span>Total</span><span class="text-green-400">13 586 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Tickets pré-vente (178 pax)</span><span>2 670 €</span></div>
+                <div class="flex justify-between text-yellow-400/70"><span>− Concours Instagram (2 pax)</span><span>−30 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Tables VIP nettes (64 pax)</span><span>5 900 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Bar net 250p × 25€ (−TPE)</span><span>6 000 €</span></div>
+                <div class="flex justify-between"><span class="text-gray-400">Entrées sur place (~6 pax)</span><span>360 €</span></div>
+                <div class="border-t border-gray-700 pt-3 flex justify-between font-semibold"><span>Total</span><span class="text-green-400">14 930 €</span></div>
             </div>
         </div>
         <div class="bg-gray-900 rounded-xl border border-l-4 border-l-red-500 border-gray-800 p-6">
@@ -716,11 +721,11 @@ const tarifsData = [
     18,20,22,22,25,25     // Soirée: 23h, 00h, 01h, 02h, 03h, 05h
 ];
 
-// Publications Instagram par jour (0 = rien, 1 = post, 2 = reel, 3 = story, 4 = QCM musique, 5 = plan table)
+// Publications Instagram par jour (0=rien, 1=post, 2=reel, 3=story, 4=QCM musique, 5=plan table, 6=sondage outfit, 7=story tables réservées, 8=jeu concours)
 const instagramData = [
-    1,0,2,4,0,3,0,1,4,3, // J-24 à J-15 (QCM musique J-21 et J-16)
-    2,0,3,3,1,5,4,2,5,3, // J-14 à J-5 (QCM J-8, Plan J-10 et J-6)
-    1,5,2,3              // J-4 à J-1 (Plan J-3)
+    1,0,2,8,0,3,6,1,4,3, // J-24 à J-15 (Jeu concours J-21)
+    2,6,3,7,1,5,4,2,5,7, // J-14 à J-5 (Story tables J-11 et J-5)
+    7,5,2,3              // J-4 à J-1 (Story tables J-4)
 ];
 
 // Détails des tarifs par phase
@@ -770,21 +775,22 @@ const tarifsDetails = {
 const instagramDetails = {
     'J-24': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Save the date 🔒', contenu: 'Annonce de la date + lieu + teaser visuel', cta: 'Lien bio → pré-inscription', inwee: true},
     'J-22': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Teaser ambiance', contenu: 'Montage vidéo édition précédente', cta: 'Attente = hype', inwee: false},
-    'J-21': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Quelle vibe pour la soirée ? 🎶', contenu: 'Sondage story: Afrobeat vs Amapiano vs Dancehall vs Mix de tout', cta: 'Vote en story !', inwee: false},
+    'J-21': {type: 'Jeu Concours', emoji: '🎁', color: 'bg-gradient-to-r from-yellow-500 to-pink-500', titre: '🎉 CONCOURS — 2 places à gagner !', contenu: '1. Abonne-toi à la page @afronight 2. Like ce post 3. Tag un(e) ami(e) en commentaire. Tirage au sort J-14 !', cta: 'Participe maintenant !', inwee: true},
     'J-19': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Urgence Super EB', contenu: 'Countdown fermeture Super Early Bird', cta: 'Swipe up → billetterie', inwee: false},
+    'J-18': {type: 'Sondage Outfit', emoji: '👗', color: 'bg-rose-500', titre: 'Montre ton outfit ! 🔥', contenu: 'Story interactive: Envoie-nous ta tenue prévue en DM ! Les meilleurs seront repostés', cta: 'DM ta photo → repost', inwee: false},
     'J-17': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Girls Deal 👯‍♀️', contenu: 'Mise en avant pack filles x4', cta: 'Tag tes copines', inwee: true},
     'J-16': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Top 3 sons à passer 🔥', contenu: 'Sondage: Demandez les sons que vous voulez entendre ! Slider pour noter', cta: 'Réponds en DM ou commente', inwee: false},
     'J-15': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Résultats sondage 🎶', contenu: 'Partage des résultats du vote musique', cta: 'Le DJ prend note !', inwee: false},
     'J-14': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Lineup DJ', contenu: 'Présentation DJ + extrait set basé sur vos votes', cta: 'Save pour le jour J', inwee: true},
-    'J-13': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Duo Mixte', contenu: 'Explication offre duo', cta: 'DM pour réserver', inwee: false},
-    'J-11': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Fermeture EB ⚠️', contenu: 'Dernier jour Early Bird', cta: 'Urgence + lien', inwee: false},
+    'J-13': {type: 'Sondage Outfit', emoji: '👗', color: 'bg-rose-500', titre: 'Best outfits reçus 👑', contenu: 'Compilation des meilleures tenues envoyées par la communauté + vote pour le top 3', cta: 'Vote ton préféré !', inwee: false},
+    'J-11': {type: 'Story Tables', emoji: '🔥', color: 'bg-emerald-600', titre: '3 tables déjà réservées ! 🛋️', contenu: 'Screenshot plan avec 3 tables grisées + "Il ne reste plus que 7 tables"', cta: 'DM rapide pour réserver', inwee: false},
     'J-10': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'Pré-vente ouverte', contenu: 'Nouveau palier tarifaire', cta: 'Lien billetterie', inwee: true},
     'J-9': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Tables VIP disponibles 🍾', contenu: 'Visuel plan de salle + emplacements tables Premium vs Standard', cta: 'DM pour réserver ta table', inwee: true},
     'J-8': {type: 'QCM Musique', emoji: '🎵', color: 'bg-orange-500', titre: 'Old school ou nouveautés ? 🎧', contenu: 'Sondage: Classiques 2010s vs Hits 2024 vs Mix générations', cta: 'Vote maintenant !', inwee: false},
     'J-7': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'À quoi s\'attendre', contenu: 'Teaser expérience complète + aperçu espace VIP', cta: 'J-7 let\'s go', inwee: true},
     'J-6': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Plus que 4 tables ! 🔥', contenu: 'Update plan: tables réservées grisées + restantes en surbrillance', cta: 'Dernières dispos → DM', inwee: true},
-    'J-5': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Dernières places PV', contenu: 'Stock restant + urgence', cta: 'Swipe up', inwee: false},
-    'J-4': {type: 'Post', emoji: '📷', color: 'bg-blue-600', titre: 'FOMO 🔥', contenu: 'Sold out preview + places restantes', cta: 'Dernière chance', inwee: true},
+    'J-5': {type: 'Story Tables', emoji: '🔥', color: 'bg-emerald-600', titre: '6 tables réservées ! 🎉', contenu: 'Update visuel: 6/8 tables prises + "Plus que 2 tables Premium dispo"', cta: 'Dernières places VIP → DM', inwee: false},
+    'J-4': {type: 'Story Tables', emoji: '🔥', color: 'bg-emerald-600', titre: 'Table Premium @julien_prk 🍾', contenu: 'Repost/mention d\'un client qui a réservé + félicitations', cta: 'Toi aussi réserve ta table !', inwee: false},
     'J-3': {type: 'Plan Table', emoji: '🛋️', color: 'bg-amber-600', titre: 'Dernière table Premium ! 👑', contenu: 'Visuel final plan de salle, 1 seule table dispo', cta: 'First come first served', inwee: true},
     'J-2': {type: 'Reel', emoji: '🎬', color: 'bg-pink-600', titre: 'Countdown 48h', contenu: 'Hype finale + récap playlist votée', cta: '48h avant la magie', inwee: false},
     'J-1': {type: 'Story', emoji: '📱', color: 'bg-purple-600', titre: 'Demain c\'est le soir', contenu: 'Infos pratiques + dress code + plan accès tables', cta: 'See you tomorrow', inwee: false},
@@ -838,25 +844,37 @@ function toggleDetail(section) {
 
 // Données cumulées pour le calcul (30 points)
 const calculData = {
-    // Recettes cumulées
-    billetterie: [150,250,400,550,700,900,1100,1350,1600,1900,2200,2450,2650,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731,2731],
+    // Recettes cumulées - Billetterie 178 pax payants × ~15€ moy = ~2670€ (−2 places concours)
+    billetterie: [100,200,350,500,700,950,1200,1450,1700,1920,2120,2320,2470,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670,2670],
+    // Tables VIP: 8 tables, mix Standard (600€) et Premium (1000€) = ~6400€ brut, net ~5900€ après commission
     tables: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,800,1600,2800,3600,4400,5100,5900,5900,5900,5900,5900,5900,5900],
-    bar: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,800,2000,3500,4400,4805],
-    surPlace: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,70,110,140,150],
+    // Bar: 250 pax × 25€ × 40% marge - TPE = ~6000€ net
+    bar: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1200,3000,4800,5600,6000],
+    // Sur place: ~20 pers × 18€ = ~360€
+    surPlace: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,60,140,250,320,360],
     // Dépenses cumulées
     lieu: [3000,3000,3000,3000,3000,3000,3000,3000,3000,3000,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800,4800],
     alcool: [0,0,0,0,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000,2000],
     personnel: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1387],
     divers: [0,0,0,0,0,0,0,0,150,150,150,150,150,150,150,150,150,300,350,400,420,440,450,450,450,450,450,450,450,450],
-    // Métriques
-    pax: [8,13,17,20,24,30,35,42,47,53,57,62,68,76,82,86,91,97,102,109,113,116,120,125,125,145,175,195,200,200],
+    // Métriques - pax inclut billetterie + tables VIP (8 pers/table en moyenne)
+    // Billetterie: 180 pax pré-vente + Tables: 8 tables × 8 pers = 64 VIP + Sur place: ~20 = 264 (mais jauge 250)
+    // On vise 250 max avec un bon remplissage
+    pax: [10,18,28,38,50,65,80,98,115,130,145,158,170,180,180,180,180,188,196,212,228,240,248,250,250,250,250,250,250,245],
     tablesNb: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,2,4,5,6,7,8,8,8,8,8,8,8],
-    // Détail billetterie par phase (cumulé)
-    billetterieSEB: [150,250,400,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500],
-    billetterieEB: [0,0,0,50,200,400,600,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],
-    billetteriePV: [0,0,0,0,0,0,0,130,280,480,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600,600],
-    billetterieLM: [0,0,0,0,0,0,0,0,0,0,0,130,330,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411,411],
-    billetteriePacks: [0,0,0,0,0,0,0,0,100,200,280,330,370,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371,371],
+    // Personnes VIP par table (cumulé) - 8 pers/table moyenne
+    paxVIP: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,16,32,40,48,56,64,64,64,64,64,64,64],
+    // Détail billetterie par phase (cumulé) - 180 pax total
+    // Super EB: 50 pax × 10€ = 500€
+    billetterieSEB: [100,200,350,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500,500],
+    // Early Bird: 60 pax × 12€ = 720€
+    billetterieEB: [0,0,0,0,200,450,700,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720,720],
+    // Pré-vente: 45 pax × 15€ = 675€
+    billetteriePV: [0,0,0,0,0,0,0,230,480,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680,680],
+    // Last Minute: 25 pax × 18€ = 450€
+    billetterieLM: [0,0,0,0,0,0,0,0,0,0,250,450,450,450,450,450,450,450,450,450,450,450,450,450,450,450,450,450,450,450],
+    // Packs bonus (Girls x4, Duos)
+    billetteriePacks: [0,0,0,0,0,0,0,0,0,70,220,320,370,350,350,350,350,350,350,350,350,350,350,350,350,350,350,350,350,350],
     // Détail tables
     tablesStandard: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,600,1200,1800,1800,2400,2400,2400,2400,2400,2400,2400,2400,2400],
     tablesPremium: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,200,600,1200,2000,2200,3000,4000,4000,4000,4000,4000,4000,4000],
@@ -1019,9 +1037,12 @@ function updateDetailCalcul(index) {
     document.getElementById('calcSolde').className = 'font-bold font-mono text-lg ' + (solde >= 0 ? 'text-green-400' : 'text-red-400');
     
     // Indicateurs
+    const paxVIP = calculData.paxVIP[index];
+    const paxBilletterie = pax - paxVIP - (index >= 24 ? Math.round(surPlace / 15) : 0);
+    
     document.getElementById('calcMarge').textContent = marge + '%';
     document.getElementById('calcMarge').className = 'font-bold ' + (parseFloat(marge) >= 0 ? 'text-green-400' : 'text-red-400');
-    document.getElementById('calcPax').textContent = pax;
+    document.getElementById('calcPax').textContent = pax + (paxVIP > 0 ? ` (dont ${paxVIP} VIP)` : '');
     document.getElementById('calcTablesNb').textContent = tablesNb + '/10';
     document.getElementById('calcRevPax').textContent = revPax + ' €';
     
@@ -1253,11 +1274,14 @@ function initMainChart() {
         9350,9450,9550,9650,9750                                      // Soirée (pourboires, imprévus)
     ];
     
-    // Filles présentes (seulement soirée, index 24-29)
-    const girlsData = new Array(24).fill(null).concat([0, 20, 80, 110, 88, 50]);
+    // Filles présentes (soirée, index 24-29) - 250 pers max, ratio 55/45
+    // Billetterie: 180 pax (55% = 99 filles) + VIP: 64 pers (32 filles) + Sur place: ~6 (3 filles) = 134 filles max
+    // Pic vers 01h-02h puis décroissance
+    const girlsData = new Array(24).fill(null).concat([0, 40, 100, 138, 115, 65]);
     
-    // Garçons présents
-    const boysData = new Array(24).fill(null).concat([0, 15, 65, 100, 75, 35]);
+    // Garçons présents - 250 pers max, ratio 55/45
+    // Billetterie: 180 pax (45% = 81 garçons) + VIP: 64 pers (32 garçons) + Sur place: ~6 (3 garçons) = 116 garçons max
+    const boysData = new Array(24).fill(null).concat([0, 35, 85, 112, 95, 55]);
     
     // Marqueurs de dépenses: index correspond à mainLabels
     const depenseMarkers = [
@@ -1292,7 +1316,7 @@ function initMainChart() {
             scales: {
                 x:{grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',maxRotation:45,minRotation:45,font:{size:9}}},
                 y:{position:'left',min:-8000,max:18000,grid:{color:'rgba(75,85,99,0.3)'},ticks:{color:'#9ca3af',callback:v=>v/1000+'K€'}},
-                y1:{position:'right',min:0,max:140,grid:{drawOnChartArea:false},ticks:{color:'#9ca3af',callback:v=>v+'p.'}},
+                y1:{position:'right',min:0,max:160,grid:{drawOnChartArea:false},ticks:{color:'#9ca3af',callback:v=>v+'p.'}},
             },
             plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(17,24,39,0.95)',padding:10}}
         },
@@ -1434,12 +1458,15 @@ function initInstagramChart() {
     const ctx = document.getElementById('instagramChart');
     if (!ctx) return;
     
-    // Données séparées par type (1=post, 2=reel, 3=story, 4=QCM musique, 5=plan table)
+    // Données séparées par type (1=post, 2=reel, 3=story, 4=QCM musique, 5=plan table, 6=sondage outfit, 7=story tables, 8=jeu concours)
     const posts = instagramData.map(v => v === 1 ? 1 : 0);
     const reels = instagramData.map(v => v === 2 ? 1 : 0);
     const stories = instagramData.map(v => v === 3 ? 1 : 0);
     const qcm = instagramData.map(v => v === 4 ? 1 : 0);
     const plan = instagramData.map(v => v === 5 ? 1 : 0);
+    const outfit = instagramData.map(v => v === 6 ? 1 : 0);
+    const storyTables = instagramData.map(v => v === 7 ? 1 : 0);
+    const concours = instagramData.map(v => v === 8 ? 1 : 0);
     
     instagramChart = new Chart(ctx, {
         type:'bar',
@@ -1451,6 +1478,9 @@ function initInstagramChart() {
                 {label:'Story',data:stories,backgroundColor:'rgba(147,51,234,0.8)',borderColor:'#9333ea',borderWidth:1},
                 {label:'QCM Musique',data:qcm,backgroundColor:'rgba(249,115,22,0.8)',borderColor:'#f97316',borderWidth:1},
                 {label:'Plan Table',data:plan,backgroundColor:'rgba(217,119,6,0.8)',borderColor:'#d97706',borderWidth:1},
+                {label:'Sondage Outfit',data:outfit,backgroundColor:'rgba(244,63,94,0.8)',borderColor:'#f43f5e',borderWidth:1},
+                {label:'Story Tables',data:storyTables,backgroundColor:'rgba(16,185,129,0.8)',borderColor:'#10b981',borderWidth:1},
+                {label:'Jeu Concours',data:concours,backgroundColor:'rgba(234,179,8,0.8)',borderColor:'#eab308',borderWidth:1},
             ]
         },
         options:{
@@ -1562,6 +1592,8 @@ function loadHypotheses() {
         {id:16, categorie:'Marketing', hypothese:'Budget Instagram Ads', valeur:'150 €', source:'Optionnel si organique insuffisant', confiance:'basse'},
         {id:17, categorie:'Divers', hypothese:'Glace + consommables', valeur:'100 €', source:'Estimation', confiance:'moyenne'},
         {id:18, categorie:'Divers', hypothese:'Marge imprévus', valeur:'5%', source:'Best practice événementiel', confiance:'moyenne'},
+        {id:19, categorie:'Marketing', hypothese:'Jeu concours Instagram', valeur:'2 places', source:'Concours J-21: follow + tag ami = 2 entrées gratuites', confiance:'haute'},
+        {id:20, categorie:'Marketing', hypothese:'Manque à gagner concours', valeur:'−30 €', source:'2 places × 15€ moy = coût acquisition followers', confiance:'haute'},
     ];
     renderHypotheses();
 }

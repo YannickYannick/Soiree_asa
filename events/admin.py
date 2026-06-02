@@ -54,7 +54,7 @@ class BudgetLineAdmin(admin.ModelAdmin):
 
 @admin.register(InstagramPost)
 class InstagramPostAdmin(admin.ModelAdmin):
-    list_display = ['title', 'event', 'scheduled_date', 'phase', 'post_type', 'status']
+    list_display = ['title', 'event', 'scheduled_date', 'phase', 'post_type', 'assigned_to', 'people_names', 'status']
     list_filter = ['event', 'status', 'post_type', 'phase']
     ordering = ['scheduled_date']
     search_fields = ['title', 'content']

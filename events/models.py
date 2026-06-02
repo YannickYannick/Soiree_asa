@@ -225,6 +225,7 @@ class InstagramPost(models.Model):
         ('Post', 'Post (feed)'),
         ('Reel', 'Reel (vidéo)'),
         ('Story', 'Story (éphémère)'),
+        ('Repost', 'Repost (partage)'),
     ]
     STATUS_CHOICES = [
         ('draft', 'Brouillon'),
@@ -243,6 +244,8 @@ class InstagramPost(models.Model):
     cta = models.CharField(max_length=300, verbose_name="Call to Action")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending_approval')
     venue_approval_required = models.BooleanField(default=True)
+    assigned_to = models.CharField(max_length=100, blank=True, null=True, verbose_name="Qui")
+    people_names = models.CharField(max_length=200, blank=True, null=True, verbose_name="Noms")
 
     class Meta:
         ordering = ['scheduled_date']

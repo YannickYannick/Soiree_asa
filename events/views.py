@@ -28,62 +28,158 @@ def get_or_create_default_event():
     return event
 
 
+def get_instagram_planning_data():
+    """Planning publications Instagram (soirée 20 juin 2026)."""
+    return [
+        # DÉJÀ PUBLIÉ
+        {'days': -20, 'phase': 'Early Bird', 'type': 'Reel', 'title': 'Teaser ambiance',
+         'content': 'Vidéo promo lancée — Montage danse/lumières/ambiance afro',
+         'cta': 'Tag ton équipe', 'status': 'published'},
+        # Ce week-end (7-8 juin)
+        {'days': -13, 'phase': 'Early Bird', 'type': 'Repost', 'title': 'Repost story DJ Sam',
+         'content': 'Sam publie une story ce week-end → repartage sur @afronight avec sticker lien bio',
+         'cta': 'Repartager dès publication', 'people_names': 'DJ Sam', 'assigned_to': 'Com'},
+        # Early Bird (jusqu'au 7 juin)
+        {'days': -18, 'phase': 'Early Bird', 'type': 'Post', 'title': 'Billetterie ouverte !',
+         'content': '13€ solo · 40€ lot 4 filles · Places limitées à 20',
+         'cta': 'Lien bio → Réserve maintenant'},
+        {'days': -17, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Girls Deal',
+         'content': '4 filles = 40€ (10€/pers) · Seulement 4 lots dispo',
+         'cta': 'Taguez vos 3 meilleures amies'},
+        # Jeu concours — 2 places gratuites (duo)
+        {'days': -16, 'phase': 'Early Bird', 'type': 'Post', 'title': 'CONCOURS — 2 places à gagner !',
+         'content': 'Lot : 1 place pour 2 personnes (soirée du 20 juin). Pour participer : 1) Abonne-toi @afronight 2) Like ce post 3) Tag un(e) ami(e) en commentaire. Tirage au sort le 8 juin.',
+         'cta': 'Participe maintenant !', 'assigned_to': 'Com'},
+        {'days': -15, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Concours en cours',
+         'content': 'Rappel visuel du lot + règles en 3 slides. Sticker « Participer » → renvoi vers le post concours.',
+         'cta': 'Swipe up vers le post concours', 'assigned_to': 'Com'},
+        {'days': -16, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Quels sons voulez-vous ?',
+         'content': 'Sondage: Afrobeats / Amapiano / Coupé-décalé / Mix', 'cta': 'Vote en story !',
+         'people_names': 'DJ'},
+        {'days': -15, 'phase': 'Early Bird', 'type': 'Reel', 'title': 'Lineup DJ',
+         'content': 'Reveal DJ + extrait mix 45s', 'cta': 'Save + lien bio', 'people_names': 'DJ Sam'},
+        {'days': -14, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Carrés VIP dispo',
+         'content': 'Silver 250€ · Gold 500€ · Magnum 600€ · Prestige 1000€',
+         'cta': 'DM pour réserver ta table'},
+        {'days': -13, 'phase': 'Early Bird', 'type': 'Post', 'title': 'Dernier jour Early Bird',
+         'content': 'Ce soir minuit = fin des 13€ · Demain 16€', 'cta': 'Compte à rebours en story'},
+        # Pré-vente (8-13 juin)
+        {'days': -13, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Dernier jour concours',
+         'content': 'Plus que 24h pour participer au jeu concours ! Rappel : abonnement + like + tag. Tirage demain soir en story live.',
+         'cta': 'Commente sur le post concours', 'assigned_to': 'Com'},
+        {'days': -12, 'phase': 'Pré-vente', 'type': 'Story', 'title': 'Tirage au sort concours',
+         'content': 'Story live ou enregistrement : tirage aléatoire parmi les participants valides. Annonce du gagnant en fin de story.',
+         'cta': 'Reste connecté ce soir', 'assigned_to': 'Com'},
+        {'days': -12, 'phase': 'Pré-vente', 'type': 'Post', 'title': 'Félicitations au gagnant !',
+         'content': 'Annonce du gagnant du concours (duo — 2 places offertes). Tag du gagnant + capture écran tirage. DM sous 48h pour récupérer les places.',
+         'cta': 'Gagnant : check tes DM', 'assigned_to': 'Com'},
+        {'days': -12, 'phase': 'Pré-vente', 'type': 'Post', 'title': 'Pré-vente ouverte',
+         'content': '16€ solo · 50€ lot 4 filles · 20 places dispo', 'cta': 'Commentez'},
+        {'days': -11, 'phase': 'Pré-vente', 'type': 'Story', 'title': 'La Péniche Paris',
+         'content': 'Visite virtuelle du lieu + plan tables VIP', 'cta': 'Swipe pour découvrir'},
+        {'days': -10, 'phase': 'Pré-vente', 'type': 'Story', 'title': '2 tables déjà réservées !',
+         'content': 'Screenshot plan avec tables grisées', 'cta': 'DM rapide pour réserver'},
+        {'days': -9, 'phase': 'Pré-vente', 'type': 'Reel', 'title': 'À quoi s\'attendre',
+         'content': 'Clips lieu + tables + danse · storytelling 45s', 'cta': 'Partagez aux indécis'},
+        {'days': -8, 'phase': 'Pré-vente', 'type': 'Story', 'title': 'Dress code',
+         'content': 'Tenue soignée exigée · Inspirations looks', 'cta': 'Envoie ton outfit en DM'},
+        {'days': -7, 'phase': 'Pré-vente', 'type': 'Post', 'title': 'Dernières places Pré-vente',
+         'content': 'Pré-vente ferme ce soir · Demain 18€', 'cta': 'QR code billetterie'},
+        # Last Minute (14-20 juin)
+        {'days': -6, 'phase': 'Last Minute', 'type': 'Post', 'title': 'Last Minute ouvert',
+         'content': '18€ solo · 60€ lot 4 filles (avant 21h30) · Places libres',
+         'cta': 'Dernières places — lien bio'},
+        {'days': -5, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Plus que 3 tables !',
+         'content': 'Update plan: tables réservées grisées', 'cta': 'DM pour les dernières'},
+        {'days': -4, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Comment venir sur le bateau',
+         'content': 'La Péniche — 2 quai de la Tournelle, 75005. Métro Maubert-Mutualité / Saint-Michel. Accès par le pont au Double côté Seine. Arrivée conseillée avant 00h.',
+         'cta': 'Géoloc + itinéraire Google Maps'},
+        {'days': -4, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Repost réservation client',
+         'content': 'Repost story client qui a réservé sa table', 'cta': 'Toi aussi réserve !'},
+        {'days': -3, 'phase': 'Last Minute', 'type': 'Post', 'title': 'Dernière table Premium !',
+         'content': 'Visuel final plan de salle', 'cta': 'First come first served'},
+        {'days': -2, 'phase': 'Last Minute', 'type': 'Reel', 'title': 'Countdown 48h',
+         'content': 'Montage urgence + récap playlist + ambiance', 'cta': '48h avant la magie'},
+        {'days': -2, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Météo du soir',
+         'content': 'Prévisions pour vendredi 20 juin — tenue & parapluie si besoin. Story interactive: soleil / nuage / pluie selon forecast J-2.',
+         'cta': 'Check Meteo France + habille-toi malin'},
+        {'days': -1, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Demain c\'est le soir',
+         'content': '23h → 5h · Tenue soignée · La Péniche Paris · Rappel accès bateau',
+         'cta': 'Géotag + infos pratiques'},
+        # Jour J
+        {'days': 0, 'phase': 'Jour J', 'type': 'Post', 'title': 'CE SOIR !',
+         'content': '23h — 20€ sur place · 25€ coupe-file · Tables sur commande',
+         'cta': 'Stories live dès 22h'},
+    ]
+
+
+def create_instagram_posts(event, planning_data=None):
+    """Crée les publications Instagram pour un événement."""
+    planning_data = planning_data or get_instagram_planning_data()
+    event_date = event.date
+    for data in planning_data:
+        status = data.get('status', 'pending_approval')
+        InstagramPost.objects.create(
+            event=event,
+            scheduled_date=event_date + timedelta(days=data['days']),
+            days_before=abs(data['days']),
+            phase=data['phase'],
+            post_type=data['type'],
+            title=data['title'],
+            content=data['content'],
+            cta=data['cta'],
+            status=status,
+            assigned_to=data.get('assigned_to'),
+            people_names=data.get('people_names'),
+        )
+
+
 def create_default_data(event):
     """Crée les données par défaut pour un nouvel événement."""
     event_date = event.date
     
-    # Phases de pricing
+    # Phases de pricing (nouvelle grille AS·A juin 2026)
+    # Early Bird: jusqu'au 7 juin (J-13)
+    # Pré-vente: 8-13 juin (J-12 à J-7)
+    # Last Minute: 14-20 juin (J-6 à J-0)
     phases_data = [
-        {
-            'phase_code': 'seb',
-            'name': 'Super Early Bird',
-            'start_offset': -24,
-            'end_offset': -18,
-            'price_solo': 10,
-            'price_girls_group': 10,
-            'price_duo_mixed': None,
-            'perks': ['Shot offert', 'Photo booth'],
-            'stock_solo': 30,
-            'stock_girls_lots': 5,
-            'stock_duo_lots': 0,
-        },
         {
             'phase_code': 'eb',
             'name': 'Early Bird',
-            'start_offset': -17,
-            'end_offset': -11,
+            'start_offset': -20,  # Début 31 mai
+            'end_offset': -13,    # Fin 7 juin
             'price_solo': 13,
-            'price_girls_group': 10,
-            'price_duo_mixed': 22,
-            'perks': ['Cocktail offert avant 00h30'],
-            'stock_solo': 45,
-            'stock_girls_lots': 6,
-            'stock_duo_lots': 4,
+            'price_girls_group': 10,  # 40€ / 4 = 10€/pers
+            'price_duo_mixed': None,
+            'perks': [],
+            'stock_solo': 20,
+            'stock_girls_lots': 4,
+            'stock_duo_lots': 0,
         },
         {
             'phase_code': 'pv',
             'name': 'Pré-vente',
-            'start_offset': -10,
-            'end_offset': -5,
+            'start_offset': -12,  # Début 8 juin
+            'end_offset': -7,     # Fin 13 juin
             'price_solo': 16,
-            'price_girls_group': 12,
-            'price_duo_mixed': 28,
-            'perks': ['Fast track file d\'attente'],
-            'stock_solo': 40,
+            'price_girls_group': 12.5,  # 50€ / 4 = 12.5€/pers
+            'price_duo_mixed': None,
+            'perks': [],
+            'stock_solo': 20,
             'stock_girls_lots': 4,
-            'stock_duo_lots': 3,
+            'stock_duo_lots': 0,
         },
         {
             'phase_code': 'lm',
             'name': 'Last Minute',
-            'start_offset': -4,
-            'end_offset': -1,
+            'start_offset': -6,   # Début 14 juin
+            'end_offset': -1,     # Fin 19 juin
             'price_solo': 18,
-            'price_girls_group': 14,
+            'price_girls_group': 15,  # 60€ / 4 = 15€/pers (avant 21h30)
             'price_duo_mixed': None,
-            'perks': [],
-            'stock_solo': 13,
-            'stock_girls_lots': 3,
+            'perks': ['Lot 4 filles valide avant 21h30'],
+            'stock_solo': 0,      # Quantité libre
+            'stock_girls_lots': 4,
             'stock_duo_lots': 0,
         },
         {
@@ -91,14 +187,27 @@ def create_default_data(event):
             'name': 'Sur place',
             'start_offset': 0,
             'end_offset': 0,
-            'price_solo': 18,
+            'price_solo': 20,
             'price_girls_group': None,
             'price_duo_mixed': None,
-            'price_door_23h': 18,
+            'price_door_23h': 20,
             'price_door_00h': 20,
-            'price_door_after_01h': 22,
-            'perks': [],
-            'stock_solo': 6,
+            'price_door_after_01h': 20,
+            'perks': ['Accès + conso incluse'],
+            'stock_solo': 0,      # Illimité
+            'stock_girls_lots': 0,
+            'stock_duo_lots': 0,
+        },
+        {
+            'phase_code': 'vip',
+            'name': 'Coupe-file',
+            'start_offset': -20,
+            'end_offset': 0,
+            'price_solo': 25,
+            'price_girls_group': None,
+            'price_duo_mixed': None,
+            'perks': ['Accès prioritaire'],
+            'stock_solo': 0,      # Illimité
             'stock_girls_lots': 0,
             'stock_duo_lots': 0,
         },
@@ -160,50 +269,7 @@ def create_default_data(event):
             **data
         )
     
-    # Publications Instagram
-    instagram_data = [
-        {'days': -24, 'phase': 'Super EB', 'type': 'Post', 'title': 'Save the date 🔒', 
-         'content': 'Date + lieu + genres musicaux + billetterie ouverte', 'cta': 'Story countdown + lien bio'},
-        {'days': -22, 'phase': 'Super EB', 'type': 'Reel', 'title': 'Teaser ambiance',
-         'content': 'Montage 30s clips foule/danse/lumières + musique amapiano', 'cta': '"Tag ton équipe"'},
-        {'days': -19, 'phase': 'Super EB', 'type': 'Story', 'title': 'Urgence Super EB ⚡',
-         'content': '"48h restantes à 10 € — après-demain 13 €"', 'cta': 'Swipe-up billetterie'},
-        {'days': -17, 'phase': 'Early Bird', 'type': 'Post', 'title': 'Girls Deal 👯‍♀️',
-         'content': '"4 filles = 10 € + cocktail · 6 lots seulement · hommes paient 13 €"', 'cta': '"Taguez vos 3 meilleures amies"'},
-        {'days': -15, 'phase': 'Early Bird', 'type': 'Reel', 'title': 'Lineup DJ',
-         'content': 'Reveal DJ ou mix preview 45s', 'cta': '"Save + lien bio"'},
-        {'days': -13, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Duo Mixte',
-         'content': '"1H+1F = 22 € · 4 duos seulement"', 'cta': 'DM pour réserver'},
-        {'days': -11, 'phase': 'Early Bird', 'type': 'Story', 'title': 'Fermeture EB ⚠️',
-         'content': '"Ce soir minuit = fin des 13 €"', 'cta': 'Compte à rebours'},
-        {'days': -10, 'phase': 'Pré-vente', 'type': 'Post', 'title': 'Pré-vente ouverte 🔓',
-         'content': '"16 € solo · 12 € filles ×4 · fast track · 62 places"', 'cta': '"Commentez 🔥"'},
-        {'days': -7, 'phase': 'Pré-vente', 'type': 'Reel', 'title': 'À quoi s\'attendre',
-         'content': 'Clips lieu + tables + danse · storytelling 45s', 'cta': '"Partagez aux indécis"'},
-        {'days': -5, 'phase': 'Pré-vente', 'type': 'Story', 'title': 'Dernières places PV',
-         'content': '"Pré-vente ferme ce soir"', 'cta': 'QR code billetterie'},
-        {'days': -4, 'phase': 'Last Minute', 'type': 'Post', 'title': 'FOMO 🔥',
-         'content': '"18 € jusqu\'à dimanche · tables sold out · 25 places"', 'cta': '"X places — lien bio"'},
-        {'days': -2, 'phase': 'Last Minute', 'type': 'Reel', 'title': 'Countdown 48h',
-         'content': 'Montage urgence + musique', 'cta': '"Dernières places"'},
-        {'days': -1, 'phase': 'Last Minute', 'type': 'Story', 'title': 'Demain c\'est le soir',
-         'content': '"23h → 5h · tenue soignée · dernière chance"', 'cta': 'Géotag La Péniche'},
-        {'days': 0, 'phase': 'Jour J', 'type': 'Post', 'title': '🎉 Ce soir !',
-         'content': '"Ce soir — 23h — 18 € avant 00h / 22 € après 01h"', 'cta': 'Stories live dès 22h'},
-    ]
-    
-    for data in instagram_data:
-        InstagramPost.objects.create(
-            event=event,
-            scheduled_date=event_date + timedelta(days=data['days']),
-            days_before=abs(data['days']),
-            phase=data['phase'],
-            post_type=data['type'],
-            title=data['title'],
-            content=data['content'],
-            cta=data['cta'],
-            status='pending_approval',
-        )
+    create_instagram_posts(event)
     
     # Scénarios de simulation
     scenarios = [
@@ -491,6 +557,19 @@ def instagram(request, pk):
     return render(request, 'events/instagram.html', context)
 
 
+def regenerate_instagram(request, pk):
+    """Régénère tous les posts Instagram avec le nouveau planning adapté."""
+    event = get_object_or_404(Event, pk=pk)
+    event_date = event.date
+    
+    # Supprimer les anciens posts
+    event.instagram_posts.all().delete()
+    
+    create_instagram_posts(event)
+    
+    return redirect('events:instagram', pk=pk)
+
+
 def budget(request, pk):
     """Module 5: Budget consolidé & P&L."""
     event = get_object_or_404(Event, pk=pk)
@@ -745,7 +824,7 @@ def api_update_budget(request, pk):
 
 @require_POST
 def api_update_instagram(request, pk):
-    """API pour mettre à jour le statut d'une publication Instagram."""
+    """API pour mettre à jour une publication Instagram (statut, assigné, etc.)."""
     event = get_object_or_404(Event, pk=pk)
     
     try:
@@ -755,13 +834,22 @@ def api_update_instagram(request, pk):
         
         if 'status' in data:
             post.status = data['status']
-            post.save()
+        
+        if 'assigned_to' in data:
+            post.assigned_to = data['assigned_to'] or None
+        
+        if 'people_names' in data:
+            post.people_names = data['people_names'] or None
+        
+        post.save()
         
         return JsonResponse({
             'success': True,
             'post': {
                 'id': post.id,
                 'status': post.status,
+                'assigned_to': post.assigned_to,
+                'people_names': post.people_names,
                 'is_locked': post.is_locked,
             }
         })

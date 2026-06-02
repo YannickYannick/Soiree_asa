@@ -18,6 +18,7 @@ urlpatterns = [
     path('event/<int:pk>/pricing/', views.pricing, name='pricing'),
     path('event/<int:pk>/tables/', views.tables, name='tables'),
     path('event/<int:pk>/instagram/', views.instagram, name='instagram'),
+    path('event/<int:pk>/instagram/regenerate/', views.regenerate_instagram, name='regenerate_instagram'),
     path('event/<int:pk>/budget/', views.budget, name='budget'),
     path('event/<int:pk>/sales/', views.sales, name='sales'),
     path('event/<int:pk>/outils/', views.outils, name='outils'),
