@@ -129,6 +129,20 @@
                 </div>
                 
                 <div class="flex items-center space-x-3">
+                    {% if user.is_authenticated %}
+                    <span class="text-sm text-gray-400">
+                        {{ user.username }}
+                        {% if user.is_superuser %}
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300">admin</span>
+                        {% elif user.is_staff %}
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-blue-900/50 text-blue-300">staff</span>
+                        {% endif %}
+                    </span>
+                    <a href="{% url 'logout' %}" class="text-sm text-gray-400 hover:text-white transition">Déconnexion</a>
+                    {% if user.is_superuser %}
+                    <a href="/admin/" class="text-sm text-gray-400 hover:text-white transition">Admin Django</a>
+                    {% endif %}
+                    {% endif %}
                     {% if event %}
                     <span class="text-sm text-gray-400">
                         {{ event.date|date:"d M Y" }}

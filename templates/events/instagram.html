@@ -10,6 +10,7 @@
             <h1 class="text-2xl font-bold mb-2">Stratégie Instagram</h1>
             <p class="text-gray-400">{{ posts|length }} publications planifiées sur 24 jours</p>
         </div>
+        {% if user.is_superuser %}
         <a href="{% url 'events:regenerate_instagram' event.pk %}" 
            class="inline-flex items-center px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg transition-colors text-sm"
            onclick="return confirm('Régénérer toutes les publications ? Les modifications manuelles seront perdues.')">
@@ -18,6 +19,7 @@
             </svg>
             Régénérer le planning
         </a>
+        {% endif %}
     </div>
     
     <!-- Alerte accord venue -->

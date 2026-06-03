@@ -3,6 +3,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_GET
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.management import call_command
 from django.utils import timezone
 from datetime import datetime, timedelta, date
 from decimal import Decimal
@@ -12,6 +14,22 @@ from .models import (
     Event, PricingPhase, VIPTable, BudgetLine, 
     InstagramPost, TicketSale, SimulationScenario
 )
+
+
+def staff_member_required(view_func):
+    """Accès staff : modules de l'application + admin limité."""
+    return login_required(
+        user_passes_test(lambda u: u.is_active and u.is_staff)(view_func),
+        login_url='/login/',
+    )
+
+
+def admin_member_required(view_func):
+    """Accès admin : tout (superuser)."""
+    return login_required(
+        user_passes_test(lambda u: u.is_active and u.is_superuser)(view_func),
+        login_url='/login/',
+    )
 
 
 def get_or_create_default_event():
@@ -25,6 +43,7 @@ def get_or_create_default_event():
             capacity=300,
         )
         create_default_data(event)
+        call_command('create_default_users', verbosity=0)
     return event
 
 
@@ -333,6 +352,7 @@ def generate_sample_sales(event):
 
 # ==================== VIEWS ====================
 
+@staff_member_required
 def dashboard(request):
     """Vue d'ensemble / dashboard principal."""
     event = get_or_create_default_event()
@@ -390,12 +410,14 @@ def dashboard(request):
     return render(request, 'events/dashboard.html', context)
 
 
+@staff_member_required
 def event_detail(request, pk):
     """Détail d'un événement."""
     event = get_object_or_404(Event, pk=pk)
     return render(request, 'events/event_detail.html', {'event': event})
 
 
+@admin_member_required
 def event_create(request):
     """Créer un nouvel événement."""
     if request.method == 'POST':
@@ -410,6 +432,7 @@ def event_create(request):
     return render(request, 'events/event_create.html')
 
 
+@staff_member_required
 def simulation(request, pk):
     """Module 1: Simulation financière dynamique."""
     event = get_object_or_404(Event, pk=pk)
@@ -483,6 +506,7 @@ def generate_timeline_data(event):
     return data
 
 
+@staff_member_required
 def pricing(request, pk):
     """Module 2: Calendrier de tarification avec stocks."""
     event = get_object_or_404(Event, pk=pk)
@@ -503,6 +527,7 @@ def pricing(request, pk):
     return render(request, 'events/pricing.html', context)
 
 
+@staff_member_required
 def tables(request, pk):
     """Module 3: Gestion des tables VIP."""
     event = get_object_or_404(Event, pk=pk)
@@ -528,6 +553,7 @@ def tables(request, pk):
     return render(request, 'events/tables.html', context)
 
 
+@staff_member_required
 def instagram(request, pk):
     """Module 4: Stratégie Instagram & calendrier."""
     event = get_object_or_404(Event, pk=pk)
@@ -557,6 +583,7 @@ def instagram(request, pk):
     return render(request, 'events/instagram.html', context)
 
 
+@admin_member_required
 def regenerate_instagram(request, pk):
     """Régénère tous les posts Instagram avec le nouveau planning adapté."""
     event = get_object_or_404(Event, pk=pk)
@@ -570,6 +597,7 @@ def regenerate_instagram(request, pk):
     return redirect('events:instagram', pk=pk)
 
 
+@staff_member_required
 def budget(request, pk):
     """Module 5: Budget consolidé & P&L."""
     event = get_object_or_404(Event, pk=pk)
@@ -622,6 +650,7 @@ def budget(request, pk):
     return render(request, 'events/budget.html', context)
 
 
+@staff_member_required
 def sales(request, pk):
     """Module 6: Suivi des ventes de billets."""
     event = get_object_or_404(Event, pk=pk)
@@ -650,6 +679,7 @@ def sales(request, pk):
     return render(request, 'events/sales.html', context)
 
 
+@staff_member_required
 def outils(request, pk):
     """Page Outils avec liens utiles."""
     event = get_object_or_404(Event, pk=pk)
@@ -658,6 +688,7 @@ def outils(request, pk):
 
 # ==================== API ENDPOINTS ====================
 
+@staff_member_required
 @require_POST
 def api_simulate(request, pk):
     """API pour recalculer la simulation en temps réel."""
@@ -722,6 +753,7 @@ def api_simulate(request, pk):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@staff_member_required
 @require_POST
 def api_update_table(request, pk):
     """API pour mettre à jour une table VIP."""
@@ -775,6 +807,7 @@ def api_update_table(request, pk):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@staff_member_required
 @require_POST
 def api_update_budget(request, pk):
     """API pour mettre à jour une ligne de budget."""
@@ -822,6 +855,7 @@ def api_update_budget(request, pk):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@staff_member_required
 @require_POST
 def api_update_instagram(request, pk):
     """API pour mettre à jour une publication Instagram (statut, assigné, etc.)."""
@@ -858,6 +892,7 @@ def api_update_instagram(request, pk):
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
 
 
+@staff_member_required
 @require_GET
 def api_sales_data(request, pk):
     """API pour récupérer les données de ventes."""
