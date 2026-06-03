@@ -93,6 +93,7 @@
                 
                 <div class="hidden md:flex items-center space-x-1">
                     {% if event %}
+                    {% if user.is_superuser %}
                     <a href="{% url 'events:dashboard' %}" 
                        class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'dashboard' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
                         Dashboard
@@ -109,10 +110,12 @@
                        class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'tables' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
                         Tables VIP
                     </a>
+                    {% endif %}
                     <a href="{% url 'events:instagram' event.pk %}" 
                        class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'instagram' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
                         Instagram
                     </a>
+                    {% if user.is_superuser %}
                     <a href="{% url 'events:budget' event.pk %}" 
                        class="px-3 py-2 rounded-lg text-sm {% if request.resolver_match.url_name == 'budget' %}bg-gray-800 text-white{% else %}text-gray-400 hover:text-white hover:bg-gray-800{% endif %} transition">
                         Budget
@@ -126,6 +129,7 @@
                         Outils
                     </a>
                     {% endif %}
+                    {% endif %}
                 </div>
                 
                 <div class="flex items-center space-x-3">
@@ -134,8 +138,8 @@
                         {{ user.username }}
                         {% if user.is_superuser %}
                         <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-purple-900/50 text-purple-300">admin</span>
-                        {% elif user.is_staff %}
-                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-blue-900/50 text-blue-300">staff</span>
+                        {% elif not user.is_superuser %}
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs bg-blue-900/50 text-blue-300">Instagram</span>
                         {% endif %}
                     </span>
                     <a href="{% url 'logout' %}" class="text-sm text-gray-400 hover:text-white transition">Déconnexion</a>
