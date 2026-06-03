@@ -21,13 +21,29 @@ ALLOWED_HOSTS = [
     if h.strip()
 ]
 
+
+def _normalize_csrf_origins(raw_value):
+    """Ajoute https:// si l'origine n'a pas de schéma (requis Django 4+)."""
+    origins = []
+    for origin in raw_value.split(','):
+        origin = origin.strip()
+        if not origin:
+            continue
+        if '://' not in origin:
+            origin = f'https://{origin}'
+        origins.append(origin)
+    return origins
+
+
 # Railway / reverse proxy
 if os.environ.get('RAILWAY_ENVIRONMENT') or not DEBUG:
-    CSRF_TRUSTED_ORIGINS = [
-        origin.strip()
-        for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
-        if origin.strip()
-    ]
+    csrf_raw = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+    if not csrf_raw and ALLOWED_HOSTS:
+        csrf_raw = ','.join(
+            h for h in ALLOWED_HOSTS
+            if h not in ('localhost', '127.0.0.1', '*')
+        )
+    CSRF_TRUSTED_ORIGINS = _normalize_csrf_origins(csrf_raw)
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 INSTALLED_APPS = [
