@@ -1,64 +1,86 @@
-# Déploiement Railway — Soirée ASA
+# Déploiement Railway — guide complet (recommencer)
 
-## 1. Créer le projet Railway
+## Étape 1 — GitHub (déjà fait)
+
+Repo : `https://github.com/YannickYannick/Soiree_asa`
+
+## Étape 2 — Projet Railway
 
 1. [railway.app](https://railway.app) → **New Project**
-2. **Deploy from GitHub** → repo `YannickYannick/Soiree_asa`
-3. Railway crée un service **Web** automatiquement
+2. **Deploy from GitHub** → **`Soiree_asa`** (pas un autre repo)
+3. **Root Directory** : vide (racine, pas `frontend`)
 
-## 2. Ajouter PostgreSQL
+## Étape 3 — PostgreSQL
 
-1. Dans le projet → **+ New** → **Database** → **PostgreSQL**
-2. Clique sur le service Postgres → onglet **Variables** ou **Connect**
-3. Copie `DATABASE_URL` (ou lie la variable au service web, voir étape 3)
+1. **+ New** → **Database** → **PostgreSQL**
 
-## 3. Variables d'environnement (service Web)
-
-Onglet **Variables** du service Django :
+## Étape 4 — Variables (service Web Django)
 
 | Variable | Valeur |
 |----------|--------|
-| `SECRET_KEY` | Génère une clé longue (ex. `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"`) |
+| `SECRET_KEY` | clé longue aléatoire |
 | `DEBUG` | `False` |
-| `ALLOWED_HOSTS` | `ton-app.up.railway.app` (remplace par ton domaine Railway) |
-| `CSRF_TRUSTED_ORIGINS` | `https://ton-app.up.railway.app` |
-| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` (référence au service Postgres) |
+| `ALLOWED_HOSTS` | `ton-domaine.up.railway.app` |
+| `CSRF_TRUSTED_ORIGINS` | `https://ton-domaine.up.railway.app` |
+| `DATABASE_URL` | **Add Reference** → Postgres → `DATABASE_URL` |
 | `RAILWAY_ENVIRONMENT` | `production` |
+| `MISE_PYTHON_GITHUB_ATTESTATIONS` | `false` (secours si build Python échoue) |
 
-**Référence Postgres :** dans Variables, clique **Add Reference** → choisis le service PostgreSQL → `DATABASE_URL`.
+## Étape 5 — Domaine
 
-## 4. Domaine public
+Service Web → **Settings** → **Networking** → **Generate Domain**
 
-1. Service Web → **Settings** → **Networking** → **Generate Domain**
-2. Mets à jour `ALLOWED_HOSTS` et `CSRF_TRUSTED_ORIGINS` avec cette URL exacte (sans slash final).
+Mettre à jour `ALLOWED_HOSTS` et `CSRF_TRUSTED_ORIGINS` avec cette URL.
 
-## 5. Premier déploiement
+## Étape 6 — Attendre deploy vert
 
-Le `Procfile` lance automatiquement :
-- `migrate`
-- `collectstatic`
-- `gunicorn`
+Le build doit afficher : Python détecté → `pip install` → **Success**.
 
-## 6. Données initiales (une fois)
+Fichiers du repo pour le build :
+- `mise.toml` — Python 3.12.8 sans attestations GitHub
+- `runtime.txt` — `python-3.12.8`
+- `Procfile` — migrate + collectstatic + gunicorn
 
-Railway → service Web → **Settings** → shell ou **Run command** :
+## Étape 7 — Données initiales
+
+### Option A — Interface Railway
+
+Service Web → **Settings** → commande one-shot ou Console :
 
 ```bash
+python manage.py migrate --noinput
 python manage.py shell -c "from events.views import get_or_create_default_event; get_or_create_default_event()"
 ```
 
-Puis ouvre `/event/1/instagram/regenerate/` pour recharger le planning Instagram (ou refais la commande shell de régénération).
+### Option B — SSH (CLI)
 
-## 7. Superuser admin (optionnel)
-
-```bash
-python manage.py createsuperuser
+```powershell
+cd "c:\Users\yannb\Documents\1. Programmation\6. soirée asa"
+railway login
+railway link
+railway ssh
 ```
 
-Accès admin : `https://ton-app.up.railway.app/admin/`
+Puis les mêmes commandes `python manage.py ...` dans le shell.
+
+**SSH avec IDs (nouvelle syntaxe CLI) :**
+
+```powershell
+railway ssh -p a32a6714-e6db-4f25-b94d-68b4f8dfbea2 -e fd7f19c6-3f95-4366-95b7-6a712e29c877 -s 1fae085c-e86e-4cb7-b1d0-1e9290ac4311
+```
+
+> L’ancienne syntaxe `--project=...` ne fonctionne plus sur Railway CLI v4.
+
+**SSH ne marche que si :**
+- tu es connecté (`railway login`)
+- le dernier déploiement est **Success** (pas Failed)
 
 ## Dépannage
 
-- **Application failed to respond** : vérifie `ALLOWED_HOSTS` et les logs (Deployments → View logs).
-- **Build échoue sur weasyprint** : retirer `weasyprint` de `requirements.txt` si tu n’utilises pas l’export PDF.
-- **Page sans CSS admin** : relancer un deploy (collectstatic).
+| Problème | Solution |
+|----------|----------|
+| `Unauthorized` | `railway login` |
+| `mise` / attestations Python | `mise.toml` + variable `MISE_PYTHON_GITHUB_ATTESTATIONS=false` |
+| `npm ci` | Mauvais repo ou Root Directory = `frontend` |
+| DisallowedHost | Corriger `ALLOWED_HOSTS` |
+| CSRF | `CSRF_TRUSTED_ORIGINS` avec `https://` |

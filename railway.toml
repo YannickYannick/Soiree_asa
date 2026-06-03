@@ -1,0 +1,7 @@
+# Config Railway — Soiree_asa
+[build]
+builder = "RAILPACK"
+
+[deploy]
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
